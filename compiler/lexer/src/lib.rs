@@ -1,9 +1,10 @@
 //! Lexer for the Code programming language.
-//!
-//! This crate converts source code into tokens.
 
 pub mod cursor;
 pub mod error;
+pub mod lexer;
 pub mod source;
 pub mod span;
+#[cfg(test)]
+mod tests;
 pub mod token;
