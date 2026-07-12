@@ -94,10 +94,6 @@ pub struct Token {
 impl Token {
     /// Creates a new token.
     pub fn new(kind: TokenKind, lexeme: String, span: Span) -> Self {
-        Self {
-            kind,
-            lexeme,
-            span,
-        }
+        Self { kind, lexeme, span }
     }
 }

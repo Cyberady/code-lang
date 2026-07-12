@@ -55,10 +55,7 @@ mod tests {
 
     #[test]
     fn reads_current_character() {
-        let source = SourceFile::new(
-            "main.code".to_string(),
-            "abc".to_string(),
-        );
+        let source = SourceFile::new("main.code".to_string(), "abc".to_string());
 
         let cursor = Cursor::new(&source);
 
@@ -67,10 +64,7 @@ mod tests {
 
     #[test]
     fn peeks_next_character() {
-        let source = SourceFile::new(
-            "main.code".to_string(),
-            "abc".to_string(),
-        );
+        let source = SourceFile::new("main.code".to_string(), "abc".to_string());
 
         let cursor = Cursor::new(&source);
 
@@ -79,10 +73,7 @@ mod tests {
 
     #[test]
     fn advances_cursor() {
-        let source = SourceFile::new(
-            "main.code".to_string(),
-            "abc".to_string(),
-        );
+        let source = SourceFile::new("main.code".to_string(), "abc".to_string());
 
         let mut cursor = Cursor::new(&source);
 
@@ -93,10 +84,7 @@ mod tests {
 
     #[test]
     fn reaches_end_of_file() {
-        let source = SourceFile::new(
-            "main.code".to_string(),
-            "a".to_string(),
-        );
+        let source = SourceFile::new("main.code".to_string(), "a".to_string());
 
         let mut cursor = Cursor::new(&source);
 

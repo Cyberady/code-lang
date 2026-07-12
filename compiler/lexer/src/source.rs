@@ -35,10 +35,7 @@ mod tests {
 
     #[test]
     fn creates_source_file() {
-        let source = SourceFile::new(
-            "main.code".to_string(),
-            "const PI = 3.14".to_string(),
-        );
+        let source = SourceFile::new("main.code".to_string(), "const PI = 3.14".to_string());
 
         assert_eq!(source.path, "main.code");
         assert_eq!(source.text, "const PI = 3.14");
@@ -46,20 +43,14 @@ mod tests {
 
     #[test]
     fn reports_length() {
-        let source = SourceFile::new(
-            "main.code".to_string(),
-            "hello".to_string(),
-        );
+        let source = SourceFile::new("main.code".to_string(), "hello".to_string());
 
         assert_eq!(source.len(), 5);
     }
 
     #[test]
     fn detects_empty_source() {
-        let source = SourceFile::new(
-            "empty.code".to_string(),
-            String::new(),
-        );
+        let source = SourceFile::new("empty.code".to_string(), String::new());
 
         assert!(source.is_empty());
     }
