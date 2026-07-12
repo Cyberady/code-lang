@@ -1,0 +1,18 @@
+# Rust
+target/
+
+# Rust backups
+**/*.rs.bk
+
+# IDE
+.vscode/*
+!.vscode/settings.json
+
+# macOS
+.DS_Store
+
+# Linux
+*~
+
+# Logs
+*.log
