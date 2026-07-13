@@ -39,6 +39,12 @@ impl<'a> Lexer<'a> {
                 continue;
             }
 
+            // Number
+            if ch.is_ascii_digit() {
+                tokens.push(self.lex_number()?);
+                continue;
+            }
+
             // Unknown character
             return Err(LexerError::UnexpectedCharacter {
                 character: ch,
@@ -92,5 +98,40 @@ impl<'a> Lexer<'a> {
         };
 
         Token::new(kind, lexeme, Span::new(start, self.cursor.position()))
+    }
+
+    fn lex_number(&mut self) -> Result<Token, LexerError> {
+        let start = self.cursor.position();
+
+        let mut lexeme = String::new();
+        let mut has_decimal = false;
+
+        while let Some(ch) = self.cursor.current() {
+            if ch == '.' {
+                if has_decimal {
+                    return Err(LexerError::InvalidNumber {
+                        span: Span::new(start, self.cursor.position()),
+                    });
+                }
+
+                has_decimal = true;
+                lexeme.push(ch);
+                self.cursor.advance();
+                continue;
+            }
+
+            if !ch.is_ascii_digit() {
+                break;
+            }
+
+            lexeme.push(ch);
+            self.cursor.advance();
+        }
+
+        Ok(Token::new(
+            TokenKind::Number,
+            lexeme,
+            Span::new(start, self.cursor.position()),
+        ))
     }
 }
