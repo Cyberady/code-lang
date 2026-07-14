@@ -5,6 +5,11 @@ version = 4
 [[package]]
 name = "cli"
 version = "0.1.0"
+dependencies = [
+ "interpreter",
+ "lexer",
+ "parser",
+]
 
 [[package]]
 name = "interpreter"
