@@ -165,25 +165,143 @@ impl<'a> Lexer<'a> {
             return Ok(None);
         };
 
-        let (kind, lexeme) = match ch {
-            '=' => (TokenKind::Equal, "="),
-            '+' => (TokenKind::Plus, "+"),
-            '-' => (TokenKind::Minus, "-"),
-            '*' => (TokenKind::Star, "*"),
-            '/' => (TokenKind::Slash, "/"),
-            '%' => (TokenKind::Percent, "%"),
+        let token = match ch {
+            '=' => {
+                self.cursor.advance();
+
+                if self.cursor.current() == Some('=') {
+                    self.cursor.advance();
+
+                    Token::new(
+                        TokenKind::EqualEqual,
+                        "==".to_string(),
+                        Span::new(start, self.cursor.position()),
+                    )
+                } else {
+                    Token::new(
+                        TokenKind::Equal,
+                        "=".to_string(),
+                        Span::new(start, self.cursor.position()),
+                    )
+                }
+            }
+
+            '!' => {
+                self.cursor.advance();
+
+                if self.cursor.current() == Some('=') {
+                    self.cursor.advance();
+
+                    Token::new(
+                        TokenKind::BangEqual,
+                        "!=".to_string(),
+                        Span::new(start, self.cursor.position()),
+                    )
+                } else {
+                    Token::new(
+                        TokenKind::Bang,
+                        "!".to_string(),
+                        Span::new(start, self.cursor.position()),
+                    )
+                }
+            }
+
+            '<' => {
+                self.cursor.advance();
+
+                if self.cursor.current() == Some('=') {
+                    self.cursor.advance();
+
+                    Token::new(
+                        TokenKind::LessEqual,
+                        "<=".to_string(),
+                        Span::new(start, self.cursor.position()),
+                    )
+                } else {
+                    Token::new(
+                        TokenKind::Less,
+                        "<".to_string(),
+                        Span::new(start, self.cursor.position()),
+                    )
+                }
+            }
+
+            '>' => {
+                self.cursor.advance();
+
+                if self.cursor.current() == Some('=') {
+                    self.cursor.advance();
+
+                    Token::new(
+                        TokenKind::GreaterEqual,
+                        ">=".to_string(),
+                        Span::new(start, self.cursor.position()),
+                    )
+                } else {
+                    Token::new(
+                        TokenKind::Greater,
+                        ">".to_string(),
+                        Span::new(start, self.cursor.position()),
+                    )
+                }
+            }
+
+            '+' => {
+                self.cursor.advance();
+
+                Token::new(
+                    TokenKind::Plus,
+                    "+".to_string(),
+                    Span::new(start, self.cursor.position()),
+                )
+            }
+
+            '-' => {
+                self.cursor.advance();
+
+                Token::new(
+                    TokenKind::Minus,
+                    "-".to_string(),
+                    Span::new(start, self.cursor.position()),
+                )
+            }
+
+            '*' => {
+                self.cursor.advance();
+
+                Token::new(
+                    TokenKind::Star,
+                    "*".to_string(),
+                    Span::new(start, self.cursor.position()),
+                )
+            }
+
+            '/' => {
+                self.cursor.advance();
+
+                Token::new(
+                    TokenKind::Slash,
+                    "/".to_string(),
+                    Span::new(start, self.cursor.position()),
+                )
+            }
+
+            '%' => {
+                self.cursor.advance();
+
+                Token::new(
+                    TokenKind::Percent,
+                    "%".to_string(),
+                    Span::new(start, self.cursor.position()),
+                )
+            }
+
             _ => {
                 return Ok(None);
             }
         };
 
-        self.cursor.advance();
-
-        Ok(Some(Token::new(
-            kind,
-            lexeme.to_string(),
-            Span::new(start, self.cursor.position()),
-        )))
+        Ok(Some(token))
     }
 
     /// Lexes delimiters.

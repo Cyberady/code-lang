@@ -37,7 +37,9 @@ impl<'a> Cursor<'a> {
 
     /// Returns the next character without advancing.
     pub fn peek(&self) -> Option<char> {
-        self.source.text[self.position..].chars().nth(1)
+        let mut chars = self.source.text[self.position..].chars();
+        chars.next(); // skip current
+        chars.next()
     }
 
     /// Advances the cursor by one character.

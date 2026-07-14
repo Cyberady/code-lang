@@ -176,3 +176,47 @@ fn lexes_function_declaration() {
 
     assert_eq!(tokens[6].kind, TokenKind::EOF);
 }
+
+#[test]
+fn lexes_equal_equal() {
+    let source = SourceFile::new("main.code".to_string(), "==".to_string());
+
+    let mut lexer = Lexer::new(&source);
+
+    let tokens = lexer.tokenize().unwrap();
+
+    assert_eq!(tokens[0].kind, TokenKind::EqualEqual);
+}
+
+#[test]
+fn lexes_bang_equal() {
+    let source = SourceFile::new("main.code".to_string(), "!=".to_string());
+
+    let mut lexer = Lexer::new(&source);
+
+    let tokens = lexer.tokenize().unwrap();
+
+    assert_eq!(tokens[0].kind, TokenKind::BangEqual);
+}
+
+#[test]
+fn lexes_greater_equal() {
+    let source = SourceFile::new("main.code".to_string(), ">=".to_string());
+
+    let mut lexer = Lexer::new(&source);
+
+    let tokens = lexer.tokenize().unwrap();
+
+    assert_eq!(tokens[0].kind, TokenKind::GreaterEqual);
+}
+
+#[test]
+fn lexes_less_equal() {
+    let source = SourceFile::new("main.code".to_string(), "<=".to_string());
+
+    let mut lexer = Lexer::new(&source);
+
+    let tokens = lexer.tokenize().unwrap();
+
+    assert_eq!(tokens[0].kind, TokenKind::LessEqual);
+}
