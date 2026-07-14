@@ -17,6 +17,12 @@ pub enum Statement {
         value: Expression,
     },
 
+    FunctionDeclaration {
+        name: String,
+        parameters: Vec<String>,
+        body: Vec<Statement>,
+    },
+
     If {
         condition: Expression,
         then_branch: Vec<Statement>,

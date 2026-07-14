@@ -7,12 +7,19 @@ use crate::value::Value;
 #[derive(Debug, Default)]
 pub struct Environment {
     variables: HashMap<String, Variable>,
+    functions: HashMap<String, Function>,
 }
 
 #[derive(Debug, Clone)]
 pub struct Variable {
     pub value: Value,
     pub is_const: bool,
+}
+
+#[derive(Debug, Clone)]
+pub struct Function {
+    pub parameters: Vec<String>,
+    pub body: Vec<parser::ast::Statement>,
 }
 
 impl Environment {
@@ -48,5 +55,13 @@ impl Environment {
 
     pub fn contains(&self, name: &str) -> bool {
         self.variables.contains_key(name)
+    }
+
+    pub fn define_function(&mut self, name: String, function: Function) {
+        self.functions.insert(name, function);
+    }
+
+    pub fn get_function(&self, name: &str) -> Option<&Function> {
+        self.functions.get(name)
     }
 }

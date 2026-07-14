@@ -1,7 +1,5 @@
-loggedIn = false
-
-if loggedIn {
-    print("Should not print")
+func greet() {
+    print("Hello")
 }
 
-print("Done")
+greet()

@@ -36,6 +36,8 @@ impl Parser {
         match self.current().kind {
             TokenKind::Const => self.parse_variable_declaration(),
 
+            TokenKind::Func => self.parse_function_declaration(),
+
             TokenKind::If => self.parse_if_statement(),
 
             TokenKind::Identifier => {
@@ -94,6 +96,42 @@ impl Parser {
             condition,
             then_branch,
             else_branch,
+        })
+    }
+
+    fn parse_function_declaration(&mut self) -> Result<Statement, ParserError> {
+        // consume 'func'
+        self.advance();
+
+        // function name
+        let name = self.consume(TokenKind::Identifier)?.lexeme.clone();
+
+        // (
+        self.consume(TokenKind::LeftParen)?;
+
+        // Version 1:
+        // no parameters yet
+        let parameters = Vec::new();
+
+        // )
+        self.consume(TokenKind::RightParen)?;
+
+        // {
+        self.consume(TokenKind::LeftBrace)?;
+
+        let mut body = Vec::new();
+
+        while self.current().kind != TokenKind::RightBrace {
+            body.push(self.parse_statement()?);
+        }
+
+        // }
+        self.consume(TokenKind::RightBrace)?;
+
+        Ok(Statement::FunctionDeclaration {
+            name,
+            parameters,
+            body,
         })
     }
 

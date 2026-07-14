@@ -73,6 +73,22 @@ impl Interpreter {
                 Ok(())
             }
 
+            Statement::FunctionDeclaration {
+                name,
+                parameters,
+                body,
+            } => {
+                self.environment.define_function(
+                    name.clone(),
+                    crate::environment::Function {
+                        parameters: parameters.clone(),
+                        body: body.clone(),
+                    },
+                );
+
+                Ok(())
+            }
+
             Statement::Expression(expression) => {
                 self.evaluate(expression)?;
                 Ok(())
@@ -118,6 +134,20 @@ impl Interpreter {
     ) -> Result<Value, InterpreterError> {
         match callee {
             Expression::Identifier(name) if name == "print" => self.builtin_print(arguments),
+
+            Expression::Identifier(name) => {
+                let function = self
+                    .environment
+                    .get_function(name)
+                    .cloned()
+                    .ok_or(InterpreterError::UndefinedVariable)?;
+
+                for statement in &function.body {
+                    self.execute_statement(statement)?;
+                }
+
+                Ok(Value::Null)
+            }
 
             _ => Err(InterpreterError::UndefinedVariable),
         }
