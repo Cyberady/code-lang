@@ -1,5 +1,7 @@
-const age = 22
+const marks = 90
 
-if age >= 18 {
-    print("Adult")
+if marks >= 40 {
+    print("Pass")
+} else {
+    print("Fail")
 }

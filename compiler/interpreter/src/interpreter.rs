@@ -35,17 +35,27 @@ impl Interpreter {
                 Ok(())
             }
 
-            Statement::If { condition, body } => {
+            Statement::If {
+                condition,
+                then_branch,
+                else_branch,
+            } => {
                 let value = self.evaluate(condition)?;
 
                 match value {
                     Value::Boolean(true) => {
-                        for statement in body {
+                        for statement in then_branch {
                             self.execute_statement(statement)?;
                         }
                     }
 
-                    Value::Boolean(false) => {}
+                    Value::Boolean(false) => {
+                        if let Some(statements) = else_branch {
+                            for statement in statements {
+                                self.execute_statement(statement)?;
+                            }
+                        }
+                    }
 
                     _ => {
                         return Err(InterpreterError::InvalidBinaryOperation);

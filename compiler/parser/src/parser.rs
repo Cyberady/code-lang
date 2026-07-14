@@ -53,15 +53,37 @@ impl Parser {
 
         self.consume(TokenKind::LeftBrace)?;
 
-        let mut body = Vec::new();
+        let mut then_branch = Vec::new();
 
         while self.current().kind != TokenKind::RightBrace {
-            body.push(self.parse_statement()?);
+            then_branch.push(self.parse_statement()?);
         }
 
         self.consume(TokenKind::RightBrace)?;
 
-        Ok(Statement::If { condition, body })
+        let else_branch = if self.current().kind == TokenKind::Else {
+            self.advance();
+
+            self.consume(TokenKind::LeftBrace)?;
+
+            let mut statements = Vec::new();
+
+            while self.current().kind != TokenKind::RightBrace {
+                statements.push(self.parse_statement()?);
+            }
+
+            self.consume(TokenKind::RightBrace)?;
+
+            Some(statements)
+        } else {
+            None
+        };
+
+        Ok(Statement::If {
+            condition,
+            then_branch,
+            else_branch,
+        })
     }
 
     fn parse_variable_declaration(&mut self) -> Result<Statement, ParserError> {

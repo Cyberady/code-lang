@@ -14,7 +14,8 @@ pub enum Statement {
 
     If {
         condition: Expression,
-        body: Vec<Statement>,
+        then_branch: Vec<Statement>,
+        else_branch: Option<Vec<Statement>>,
     },
 
     Expression(Expression),
