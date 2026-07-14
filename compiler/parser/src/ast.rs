@@ -8,6 +8,8 @@ pub struct Program {
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
     VariableDeclaration { name: String, value: Expression },
+
+    Expression(Expression),
 }
 
 #[derive(Debug, Clone, PartialEq)]

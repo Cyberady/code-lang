@@ -34,6 +34,11 @@ impl Interpreter {
 
                 Ok(())
             }
+
+            Statement::Expression(expression) => {
+                self.evaluate(expression)?;
+                Ok(())
+            }
         }
     }
 
