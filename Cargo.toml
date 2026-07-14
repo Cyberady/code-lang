@@ -1,7 +1,8 @@
 [workspace]
-resolver = "2"
+resolver = "3"
 
 members = [
     "cli",
-    "compiler/lexer"
+    "compiler/lexer",
+    "compiler/parser",
 ]
