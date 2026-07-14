@@ -46,5 +46,9 @@ fn parses_binary_expression() {
         Statement::Expression(_) => {
             panic!("Expected variable declaration");
         }
+
+        Statement::Assignment { .. } => {
+            panic!("Did not expect assignment");
+        }
     }
 }

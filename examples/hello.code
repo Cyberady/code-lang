@@ -1,7 +1,11 @@
-const marks = 90
+const PI = 3.14
 
-if marks >= 40 {
-    print("Pass")
-} else {
-    print("Fail")
-}
+radius = 10
+
+print(radius)
+
+radius = 20
+
+print(radius)
+
+print(PI)

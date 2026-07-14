@@ -38,6 +38,17 @@ impl Parser {
 
             TokenKind::If => self.parse_if_statement(),
 
+            TokenKind::Identifier => {
+                if self.position + 1 < self.tokens.len()
+                    && self.tokens[self.position + 1].kind == TokenKind::Equal
+                {
+                    return self.parse_assignment();
+                }
+
+                let expression = self.parse_expression()?;
+                Ok(Statement::Expression(expression))
+            }
+
             _ => {
                 let expression = self.parse_expression()?;
                 Ok(Statement::Expression(expression))
@@ -97,6 +108,17 @@ impl Parser {
 
         Ok(Statement::VariableDeclaration { name, value })
     }
+
+    fn parse_assignment(&mut self) -> Result<Statement, ParserError> {
+        let name = self.consume(TokenKind::Identifier)?.lexeme.clone();
+
+        self.consume(TokenKind::Equal)?;
+
+        let value = self.parse_expression()?;
+
+        Ok(Statement::Assignment { name, value })
+    }
+
     fn parse_expression(&mut self) -> Result<Expression, ParserError> {
         self.parse_equality()
     }

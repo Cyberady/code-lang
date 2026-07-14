@@ -30,7 +30,15 @@ impl Interpreter {
             Statement::VariableDeclaration { name, value } => {
                 let value = self.evaluate(value)?;
 
-                self.environment.define(name.clone(), value);
+                self.environment.define(name.clone(), value, true);
+
+                Ok(())
+            }
+
+            Statement::Assignment { name, value } => {
+                let value = self.evaluate(value)?;
+
+                self.environment.assign(name.clone(), value);
 
                 Ok(())
             }

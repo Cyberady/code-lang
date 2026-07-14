@@ -12,6 +12,11 @@ pub enum Statement {
         value: Expression,
     },
 
+    Assignment {
+        name: String,
+        value: Expression,
+    },
+
     If {
         condition: Expression,
         then_branch: Vec<Statement>,
