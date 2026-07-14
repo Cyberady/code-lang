@@ -124,6 +124,28 @@ impl Interpreter {
                 Ok(Value::Number(a % b))
             }
 
+            (Value::Number(a), BinaryOperator::Less, Value::Number(b)) => Ok(Value::Boolean(a < b)),
+
+            (Value::Number(a), BinaryOperator::LessEqual, Value::Number(b)) => {
+                Ok(Value::Boolean(a <= b))
+            }
+
+            (Value::Number(a), BinaryOperator::Greater, Value::Number(b)) => {
+                Ok(Value::Boolean(a > b))
+            }
+
+            (Value::Number(a), BinaryOperator::GreaterEqual, Value::Number(b)) => {
+                Ok(Value::Boolean(a >= b))
+            }
+
+            (Value::Number(a), BinaryOperator::EqualEqual, Value::Number(b)) => {
+                Ok(Value::Boolean(a == b))
+            }
+
+            (Value::Number(a), BinaryOperator::BangEqual, Value::Number(b)) => {
+                Ok(Value::Boolean(a != b))
+            }
+
             _ => Err(InterpreterError::InvalidBinaryOperation),
         }
     }

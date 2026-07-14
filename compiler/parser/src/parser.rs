@@ -55,11 +55,11 @@ impl Parser {
         Ok(Statement::VariableDeclaration { name, value })
     }
     fn parse_expression(&mut self) -> Result<Expression, ParserError> {
-        self.parse_call()
+        self.parse_equality()
     }
 
     fn parse_call(&mut self) -> Result<Expression, ParserError> {
-        let mut expression = self.parse_term()?;
+        let mut expression = self.parse_primary()?;
 
         loop {
             if self.current().kind != TokenKind::LeftParen {
@@ -111,8 +111,62 @@ impl Parser {
         Ok(expression)
     }
 
+    fn parse_comparison(&mut self) -> Result<Expression, ParserError> {
+        let mut expression = self.parse_term()?;
+
+        loop {
+            let operator = match self.current().kind {
+                TokenKind::Less => BinaryOperator::Less,
+                TokenKind::LessEqual => BinaryOperator::LessEqual,
+                TokenKind::Greater => BinaryOperator::Greater,
+                TokenKind::GreaterEqual => BinaryOperator::GreaterEqual,
+                _ => {
+                    break;
+                }
+            };
+
+            self.advance();
+
+            let right = self.parse_term()?;
+
+            expression = Expression::Binary {
+                left: Box::new(expression),
+                operator,
+                right: Box::new(right),
+            };
+        }
+
+        Ok(expression)
+    }
+
+    fn parse_equality(&mut self) -> Result<Expression, ParserError> {
+        let mut expression = self.parse_comparison()?;
+
+        loop {
+            let operator = match self.current().kind {
+                TokenKind::EqualEqual => BinaryOperator::EqualEqual,
+                TokenKind::BangEqual => BinaryOperator::BangEqual,
+                _ => {
+                    break;
+                }
+            };
+
+            self.advance();
+
+            let right = self.parse_comparison()?;
+
+            expression = Expression::Binary {
+                left: Box::new(expression),
+                operator,
+                right: Box::new(right),
+            };
+        }
+
+        Ok(expression)
+    }
+
     fn parse_factor(&mut self) -> Result<Expression, ParserError> {
-        let mut expression = self.parse_primary()?;
+        let mut expression = self.parse_call()?;
 
         loop {
             let operator = match self.current().kind {
