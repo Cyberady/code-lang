@@ -1,1 +1,1 @@
-print("Hello, Code!")
+print(10 + 20 * 30)

@@ -86,12 +86,39 @@ impl Parser {
     }
 
     fn parse_term(&mut self) -> Result<Expression, ParserError> {
-        let mut expression = self.parse_primary()?;
+        let mut expression = self.parse_factor()?;
 
         loop {
             let operator = match self.current().kind {
                 TokenKind::Plus => BinaryOperator::Plus,
                 TokenKind::Minus => BinaryOperator::Minus,
+                _ => {
+                    break;
+                }
+            };
+
+            self.advance();
+
+            let right = self.parse_factor()?;
+
+            expression = Expression::Binary {
+                left: Box::new(expression),
+                operator,
+                right: Box::new(right),
+            };
+        }
+
+        Ok(expression)
+    }
+
+    fn parse_factor(&mut self) -> Result<Expression, ParserError> {
+        let mut expression = self.parse_primary()?;
+
+        loop {
+            let operator = match self.current().kind {
+                TokenKind::Star => BinaryOperator::Multiply,
+                TokenKind::Slash => BinaryOperator::Divide,
+                TokenKind::Percent => BinaryOperator::Modulo,
                 _ => {
                     break;
                 }
