@@ -35,7 +35,11 @@ impl Parser {
     fn parse_statement(&mut self) -> Result<Statement, ParserError> {
         match self.current().kind {
             TokenKind::Const => self.parse_variable_declaration(),
-            _ => Err(ParserError::UnexpectedToken),
+
+            _ => {
+                let expression = self.parse_expression()?;
+                Ok(Statement::Expression(expression))
+            }
         }
     }
 
@@ -51,7 +55,34 @@ impl Parser {
         Ok(Statement::VariableDeclaration { name, value })
     }
     fn parse_expression(&mut self) -> Result<Expression, ParserError> {
-        self.parse_term()
+        self.parse_call()
+    }
+
+    fn parse_call(&mut self) -> Result<Expression, ParserError> {
+        let mut expression = self.parse_term()?;
+
+        loop {
+            if self.current().kind != TokenKind::LeftParen {
+                break;
+            }
+
+            self.advance();
+
+            let mut arguments = Vec::new();
+
+            if self.current().kind != TokenKind::RightParen {
+                arguments.push(self.parse_expression()?);
+            }
+
+            self.consume(TokenKind::RightParen)?;
+
+            expression = Expression::Call {
+                callee: Box::new(expression),
+                arguments,
+            };
+        }
+
+        Ok(expression)
     }
 
     fn parse_term(&mut self) -> Result<Expression, ParserError> {

@@ -23,6 +23,11 @@ pub enum Expression {
         operator: BinaryOperator,
         right: Box<Expression>,
     },
+
+    Call {
+        callee: Box<Expression>,
+        arguments: Vec<Expression>,
+    },
 }
 
 #[derive(Debug, Clone, PartialEq)]

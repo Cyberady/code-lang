@@ -62,6 +62,10 @@ impl Interpreter {
 
                 self.evaluate_binary(left, operator, right)
             }
+
+            Expression::Call { .. } => {
+                todo!("Call expressions are not implemented yet")
+            }
         }
     }
 
