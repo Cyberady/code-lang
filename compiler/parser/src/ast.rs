@@ -7,11 +7,18 @@ pub struct Program {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
-    VariableDeclaration { name: String, value: Expression },
+    VariableDeclaration {
+        name: String,
+        value: Expression,
+    },
+
+    If {
+        condition: Expression,
+        body: Vec<Statement>,
+    },
 
     Expression(Expression),
 }
-
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
     Identifier(String),

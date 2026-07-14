@@ -35,6 +35,26 @@ impl Interpreter {
                 Ok(())
             }
 
+            Statement::If { condition, body } => {
+                let value = self.evaluate(condition)?;
+
+                match value {
+                    Value::Boolean(true) => {
+                        for statement in body {
+                            self.execute_statement(statement)?;
+                        }
+                    }
+
+                    Value::Boolean(false) => {}
+
+                    _ => {
+                        return Err(InterpreterError::InvalidBinaryOperation);
+                    }
+                }
+
+                Ok(())
+            }
+
             Statement::Expression(expression) => {
                 self.evaluate(expression)?;
                 Ok(())

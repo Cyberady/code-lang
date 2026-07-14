@@ -1,10 +1,5 @@
-const a = 10
-const b = 20
+const age = 22
 
-print(a < b)
-print(a > b)
-print(a == b)
-print(a != b)
-print(a + b)
-print(a * b)
-print("Comparisons work!")
+if age >= 18 {
+    print("Adult")
+}

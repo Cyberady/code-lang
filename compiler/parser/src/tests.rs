@@ -39,6 +39,10 @@ fn parses_binary_expression() {
             }
         }
 
+        Statement::If { .. } => {
+            panic!("Expected variable declaration");
+        }
+
         Statement::Expression(_) => {
             panic!("Expected variable declaration");
         }

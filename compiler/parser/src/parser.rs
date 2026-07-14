@@ -36,11 +36,32 @@ impl Parser {
         match self.current().kind {
             TokenKind::Const => self.parse_variable_declaration(),
 
+            TokenKind::If => self.parse_if_statement(),
+
             _ => {
                 let expression = self.parse_expression()?;
                 Ok(Statement::Expression(expression))
             }
         }
+    }
+
+    fn parse_if_statement(&mut self) -> Result<Statement, ParserError> {
+        // consume "if"
+        self.advance();
+
+        let condition = self.parse_expression()?;
+
+        self.consume(TokenKind::LeftBrace)?;
+
+        let mut body = Vec::new();
+
+        while self.current().kind != TokenKind::RightBrace {
+            body.push(self.parse_statement()?);
+        }
+
+        self.consume(TokenKind::RightBrace)?;
+
+        Ok(Statement::If { condition, body })
     }
 
     fn parse_variable_declaration(&mut self) -> Result<Statement, ParserError> {
