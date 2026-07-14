@@ -274,6 +274,21 @@ impl Parser {
                 Ok(Expression::Identifier(value))
             }
 
+            TokenKind::True => {
+                self.advance();
+                Ok(Expression::BooleanLiteral(true))
+            }
+
+            TokenKind::False => {
+                self.advance();
+                Ok(Expression::BooleanLiteral(false))
+            }
+
+            TokenKind::Null => {
+                self.advance();
+                Ok(Expression::NullLiteral)
+            }
+
             _ => Err(ParserError::UnexpectedToken),
         }
     }

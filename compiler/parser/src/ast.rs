@@ -33,6 +33,10 @@ pub enum Expression {
 
     StringLiteral(String),
 
+    BooleanLiteral(bool),
+
+    NullLiteral,
+
     Binary {
         left: Box<Expression>,
         operator: BinaryOperator,

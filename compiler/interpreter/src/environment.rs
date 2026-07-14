@@ -24,11 +24,21 @@ impl Environment {
         self.variables.insert(name, Variable { value, is_const });
     }
 
-    pub fn assign(&mut self, name: String, value: Value) {
+    pub fn assign(
+        &mut self,
+        name: String,
+        value: Value,
+    ) -> Result<(), crate::error::InterpreterError> {
         if let Some(variable) = self.variables.get_mut(&name) {
+            if variable.is_const {
+                return Err(crate::error::InterpreterError::CannotAssignConstant);
+            }
+
             variable.value = value;
+            Ok(())
         } else {
             self.define(name, value, false);
+            Ok(())
         }
     }
 

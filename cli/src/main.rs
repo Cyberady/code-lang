@@ -1,4 +1,4 @@
-use std::{env, fs};
+use std::{env, fs, process};
 
 use interpreter::interpreter::Interpreter;
 use lexer::{lexer::Lexer, source::SourceFile};
@@ -9,26 +9,47 @@ fn main() {
 
     if args.len() != 2 {
         eprintln!("Usage: code <file.code>");
-        std::process::exit(1);
+        process::exit(1);
     }
 
     let path = &args[1];
 
-    let text = fs::read_to_string(path).expect("Failed to read source file.");
+    let text = match fs::read_to_string(path) {
+        Ok(text) => text,
+        Err(error) => {
+            eprintln!("File Error:\n{}", error);
+            process::exit(1);
+        }
+    };
 
     let source = SourceFile::new(path.clone(), text);
 
     let mut lexer = Lexer::new(&source);
 
-    let tokens = lexer.tokenize().expect("Lexer error");
+    let tokens = match lexer.tokenize() {
+        Ok(tokens) => tokens,
+        Err(error) => {
+            eprintln!("Lexer Error:\n{}", error);
+            process::exit(1);
+        }
+    };
 
     let mut parser = Parser::new(tokens);
 
-    let program = parser.parse().expect("Parser error");
+    let program = match parser.parse() {
+        Ok(program) => program,
+        Err(error) => {
+            eprintln!("Parser Error:\n{}", error);
+            process::exit(1);
+        }
+    };
 
     let mut interpreter = Interpreter::new();
 
-    interpreter.execute(&program).expect("Runtime error");
+    if let Err(error) = interpreter.execute(&program) {
+        eprintln!("Runtime Error:\n{}", error);
+        process::exit(1);
+    }
 
     println!("Program executed successfully.");
 }

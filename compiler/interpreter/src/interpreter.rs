@@ -38,7 +38,7 @@ impl Interpreter {
             Statement::Assignment { name, value } => {
                 let value = self.evaluate(value)?;
 
-                self.environment.assign(name.clone(), value);
+                self.environment.assign(name.clone(), value)?;
 
                 Ok(())
             }
@@ -85,6 +85,10 @@ impl Interpreter {
             Expression::NumberLiteral(value) => Ok(Value::Number(value.parse().unwrap())),
 
             Expression::StringLiteral(value) => Ok(Value::String(value.clone())),
+
+            Expression::BooleanLiteral(value) => Ok(Value::Boolean(*value)),
+
+            Expression::NullLiteral => Ok(Value::Null),
 
             Expression::Identifier(name) => self
                 .environment

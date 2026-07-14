@@ -1,11 +1,7 @@
-const PI = 3.14
+loggedIn = false
 
-radius = 10
+if loggedIn {
+    print("Should not print")
+}
 
-print(radius)
-
-radius = 20
-
-print(radius)
-
-print(PI)
+print("Done")
