@@ -63,10 +63,38 @@ impl Interpreter {
                 self.evaluate_binary(left, operator, right)
             }
 
-            Expression::Call { .. } => {
-                todo!("Call expressions are not implemented yet")
-            }
+            Expression::Call { callee, arguments } => self.evaluate_call(callee, arguments),
         }
+    }
+
+    fn evaluate_call(
+        &mut self,
+        callee: &Expression,
+        arguments: &[Expression],
+    ) -> Result<Value, InterpreterError> {
+        match callee {
+            Expression::Identifier(name) if name == "print" => self.builtin_print(arguments),
+
+            _ => Err(InterpreterError::UndefinedVariable),
+        }
+    }
+
+    fn builtin_print(&mut self, arguments: &[Expression]) -> Result<Value, InterpreterError> {
+        if arguments.len() != 1 {
+            return Err(InterpreterError::InvalidBinaryOperation);
+        }
+
+        let value = self.evaluate(&arguments[0])?;
+
+        match &value {
+            Value::Number(number) => println!("{number}"),
+
+            Value::Boolean(boolean) => println!("{boolean}"),
+
+            Value::Null => println!("null"),
+        }
+
+        Ok(Value::Null)
     }
 
     fn evaluate_binary(
