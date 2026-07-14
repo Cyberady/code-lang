@@ -118,6 +118,11 @@ impl Parser {
                 Ok(Expression::NumberLiteral(value))
             }
 
+            TokenKind::String => {
+                let value = self.advance().lexeme.clone();
+                Ok(Expression::StringLiteral(value))
+            }
+
             TokenKind::Identifier => {
                 let value = self.advance().lexeme.clone();
                 Ok(Expression::Identifier(value))

@@ -1,4 +1,1 @@
-const a = 10
-const b = 20
-
-print(a + b)
+print("Hello, Code!")

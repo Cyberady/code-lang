@@ -18,6 +18,8 @@ pub enum Expression {
 
     NumberLiteral(String),
 
+    StringLiteral(String),
+
     Binary {
         left: Box<Expression>,
         operator: BinaryOperator,

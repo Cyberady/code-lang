@@ -46,6 +46,8 @@ impl Interpreter {
         match expression {
             Expression::NumberLiteral(value) => Ok(Value::Number(value.parse().unwrap())),
 
+            Expression::StringLiteral(value) => Ok(Value::String(value.clone())),
+
             Expression::Identifier(name) => self
                 .environment
                 .get(name)
@@ -88,6 +90,8 @@ impl Interpreter {
 
         match &value {
             Value::Number(number) => println!("{number}"),
+
+            Value::String(text) => println!("{text}"),
 
             Value::Boolean(boolean) => println!("{boolean}"),
 

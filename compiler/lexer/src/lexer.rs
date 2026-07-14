@@ -40,6 +40,11 @@ impl<'a> Lexer<'a> {
                 continue;
             }
 
+            if ch == '"' {
+                tokens.push(self.lex_string()?);
+                continue;
+            }
+
             // Number
             if ch.is_ascii_digit() {
                 tokens.push(self.lex_number()?);
@@ -153,6 +158,40 @@ impl<'a> Lexer<'a> {
         Ok(Token::new(
             TokenKind::Number,
             lexeme,
+            Span::new(start, self.cursor.position()),
+        ))
+    }
+
+    fn lex_string(&mut self) -> Result<Token, LexerError> {
+        let start = self.cursor.position();
+
+        // Skip opening quote
+        self.cursor.advance();
+
+        let mut value = String::new();
+
+        while let Some(ch) = self.cursor.current() {
+            if ch == '"' {
+                break;
+            }
+
+            value.push(ch);
+            self.cursor.advance();
+        }
+
+        // Reached EOF before closing quote
+        if self.cursor.current().is_none() {
+            return Err(LexerError::UnterminatedString {
+                span: Span::new(start, self.cursor.position()),
+            });
+        }
+
+        // Skip closing quote
+        self.cursor.advance();
+
+        Ok(Token::new(
+            TokenKind::String,
+            value,
             Span::new(start, self.cursor.position()),
         ))
     }
