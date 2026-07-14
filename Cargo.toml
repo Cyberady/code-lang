@@ -5,4 +5,5 @@ members = [
     "cli",
     "compiler/lexer",
     "compiler/parser",
+    "compiler/interpreter",
 ]
