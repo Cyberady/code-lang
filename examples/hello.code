@@ -1,1 +1,5 @@
-print((10 + 20) * 5)
+numbers = [10, 20, 30]
+
+numbers[1] = 99
+
+print(numbers)

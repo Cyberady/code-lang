@@ -6,5 +6,7 @@ pub enum Value {
 
     Boolean(bool),
 
+    Array(Vec<Value>),
+
     Null,
 }

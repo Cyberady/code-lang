@@ -10,8 +10,10 @@ use crate::diagnostic::Diagnostic;
 
 use lexer::span::Span;
 
+use std::{cell::RefCell, rc::Rc};
+
 pub struct Interpreter<'a> {
-    environment: Environment,
+    environment: Rc<RefCell<Environment>>,
     _source: &'a SourceFile,
 }
 
@@ -19,7 +21,7 @@ impl<'a> Interpreter<'a> {
     /// Creates a new interpreter.
     pub fn new(source: &'a SourceFile) -> Self {
         Self {
-            environment: Environment::new(),
+            environment: Rc::new(RefCell::new(Environment::new())),
             _source: source,
         }
     }
@@ -42,7 +44,68 @@ impl<'a> Interpreter<'a> {
             } => {
                 let value = self.evaluate(value)?;
 
-                self.environment.define(name.clone(), value, true);
+                self.environment
+                    .borrow_mut()
+                    .define(name.clone(), value, true);
+
+                Ok(())
+            }
+
+            Statement::IndexAssignment {
+                object,
+                index,
+                value,
+                ..
+            } => {
+                let object_name = match object {
+                    Expression::Identifier { name, .. } => name.clone(),
+
+                    _ => {
+                        return Err(InterpreterError::InvalidBinaryOperation {
+                            operator: "invalid assignment".to_string(),
+                            span: lexer::span::Span::default(),
+                        });
+                    }
+                };
+
+                let mut array = match self.environment.borrow().get(&object_name) {
+                    Some(Value::Array(values)) => values,
+
+                    _ => {
+                        return Err(InterpreterError::InvalidBinaryOperation {
+                            operator: "not an array".to_string(),
+                            span: lexer::span::Span::default(),
+                        });
+                    }
+                };
+
+                let index = self.evaluate(index)?;
+
+                let value = self.evaluate(value)?;
+
+                let index = match index {
+                    Value::Number(n) => n as usize,
+
+                    _ => {
+                        return Err(InterpreterError::InvalidBinaryOperation {
+                            operator: "invalid index".to_string(),
+                            span: lexer::span::Span::default(),
+                        });
+                    }
+                };
+
+                if index >= array.len() {
+                    return Err(InterpreterError::InvalidBinaryOperation {
+                        operator: "index out of bounds".to_string(),
+                        span: lexer::span::Span::default(),
+                    });
+                }
+
+                array[index] = value;
+
+                self.environment
+                    .borrow_mut()
+                    .assign(object_name, Value::Array(array))?;
 
                 Ok(())
             }
@@ -54,7 +117,7 @@ impl<'a> Interpreter<'a> {
             } => {
                 let value = self.evaluate(value)?;
 
-                self.environment.assign(name.clone(), value)?;
+                self.environment.borrow_mut().assign(name.clone(), value)?;
 
                 Ok(())
             }
@@ -69,16 +132,30 @@ impl<'a> Interpreter<'a> {
 
                 match value {
                     Value::Boolean(true) => {
+                        let previous = self.environment.clone();
+
+                        self.environment =
+                            Rc::new(RefCell::new(Environment::child(previous.clone())));
+
                         for statement in then_branch {
                             self.execute_statement(statement)?;
                         }
+
+                        self.environment = previous;
                     }
 
                     Value::Boolean(false) => {
                         if let Some(statements) = else_branch {
+                            let previous = self.environment.clone();
+
+                            self.environment =
+                                Rc::new(RefCell::new(Environment::child(previous.clone())));
+
                             for statement in statements {
                                 self.execute_statement(statement)?;
                             }
+
+                            self.environment = previous;
                         }
                     }
 
@@ -99,7 +176,7 @@ impl<'a> Interpreter<'a> {
                 body,
                 ..
             } => {
-                self.environment.define_function(
+                self.environment.borrow_mut().define_function(
                     name.clone(),
                     crate::environment::Function {
                         parameters: parameters.clone(),
@@ -135,8 +212,8 @@ impl<'a> Interpreter<'a> {
 
             Expression::Identifier { name, span } => {
                 self.environment
+                    .borrow()
                     .get(name)
-                    .cloned()
                     .ok_or(InterpreterError::UndefinedVariable {
                         name: name.clone(),
                         span: *span,
@@ -158,6 +235,40 @@ impl<'a> Interpreter<'a> {
             Expression::Call {
                 callee, arguments, ..
             } => self.evaluate_call(callee, arguments),
+
+            Expression::ArrayLiteral { elements, .. } => {
+                let mut values = Vec::new();
+
+                for element in elements {
+                    values.push(self.evaluate(element)?);
+                }
+
+                Ok(Value::Array(values))
+            }
+
+            Expression::Index { object, index, .. } => {
+                let object = self.evaluate(object)?;
+                let index = self.evaluate(index)?;
+
+                match (object, index) {
+                    (Value::Array(values), Value::Number(i)) => {
+                        let i = i as usize;
+
+                        values
+                            .get(i)
+                            .cloned()
+                            .ok_or(InterpreterError::InvalidBinaryOperation {
+                                operator: "array index out of bounds".to_string(),
+                                span: lexer::span::Span::default(),
+                            })
+                    }
+
+                    _ => Err(InterpreterError::InvalidBinaryOperation {
+                        operator: "invalid array index".to_string(),
+                        span: lexer::span::Span::default(),
+                    }),
+                }
+            }
         }
     }
 
@@ -170,12 +281,15 @@ impl<'a> Interpreter<'a> {
             Expression::Identifier { name, .. } if name == "print" => self.builtin_print(arguments),
 
             Expression::Identifier { name, span } => {
-                let function = self.environment.get_function(name).cloned().ok_or(
-                    InterpreterError::UndefinedVariable {
+                let function = self
+                    .environment
+                    .borrow()
+                    .get_function(name)
+                    .cloned()
+                    .ok_or(InterpreterError::UndefinedVariable {
                         name: name.clone(),
                         span: *span,
-                    },
-                )?;
+                    })?;
 
                 if function.parameters.len() != arguments.len() {
                     return Err(InterpreterError::InvalidBinaryOperation {
@@ -183,37 +297,54 @@ impl<'a> Interpreter<'a> {
                         span: Span::default(),
                     });
                 }
+                let previous = self.environment.clone();
+
+                let function_environment =
+                    Rc::new(RefCell::new(Environment::child(previous.clone())));
+
+                self.environment = function_environment;
 
                 for (parameter, argument) in function.parameters.iter().zip(arguments.iter()) {
                     let value = self.evaluate(argument)?;
 
-                    self.environment.define(parameter.clone(), value, false);
+                    self.environment
+                        .borrow_mut()
+                        .define(parameter.clone(), value, false);
                 }
 
-                let last_index = function.body.len().saturating_sub(1);
+                let result = {
+                    let last_index = function.body.len().saturating_sub(1);
 
-                for (index, statement) in function.body.iter().enumerate() {
-                    match self.execute_statement(statement) {
-                        Ok(()) => {
-                            if index == last_index {
-                                if let Statement::Expression(expression) = statement {
-                                    let value = self.evaluate(expression)?;
-                                    return Ok(value);
+                    let mut value = Value::Null;
+
+                    for (index, statement) in function.body.iter().enumerate() {
+                        match self.execute_statement(statement) {
+                            Ok(()) => {
+                                if index == last_index {
+                                    if let Statement::Expression(expression) = statement {
+                                        value = self.evaluate(expression)?;
+                                    }
                                 }
                             }
-                        }
 
-                        Err(InterpreterError::Return(value)) => {
-                            return Ok(value);
-                        }
+                            Err(InterpreterError::Return(return_value)) => {
+                                value = return_value;
+                                break;
+                            }
 
-                        Err(error) => {
-                            return Err(error);
+                            Err(error) => {
+                                self.environment = previous;
+                                return Err(error);
+                            }
                         }
                     }
-                }
 
-                Ok(Value::Null)
+                    value
+                };
+
+                self.environment = previous;
+
+                Ok(result)
             }
 
             _ => Err(InterpreterError::UndefinedVariable {
@@ -244,6 +375,26 @@ impl<'a> Interpreter<'a> {
             Value::Boolean(boolean) => println!("{boolean}"),
 
             Value::Null => println!("null"),
+
+            Value::Array(values) => {
+                print!("[");
+
+                for (index, value) in values.iter().enumerate() {
+                    if index > 0 {
+                        print!(", ");
+                    }
+
+                    match value {
+                        Value::Number(n) => print!("{n}"),
+                        Value::String(s) => print!("{s}"),
+                        Value::Boolean(b) => print!("{b}"),
+                        Value::Null => print!("null"),
+                        Value::Array(_) => print!("[...]"),
+                    }
+                }
+
+                println!("]");
+            }
         }
 
         Ok(Value::Null)
@@ -359,10 +510,5 @@ impl<'a> Interpreter<'a> {
 
             InterpreterError::Return(_) => unreachable!(),
         }
-    }
-
-    /// Returns the runtime environment.
-    pub fn environment(&self) -> &Environment {
-        &self.environment
     }
 }

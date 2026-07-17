@@ -43,13 +43,37 @@ impl Parser {
             TokenKind::If => self.parse_if_statement(),
 
             TokenKind::Identifier => {
-                if self.position + 1 < self.tokens.len()
-                    && self.tokens[self.position + 1].kind == TokenKind::Equal
-                {
-                    return self.parse_assignment();
+                let expression = self.parse_expression()?;
+
+                if self.current().kind == TokenKind::Equal {
+                    self.advance();
+
+                    let value = self.parse_expression()?;
+
+                    match expression {
+                        Expression::Identifier { name, span } => {
+                            return Ok(Statement::Assignment { name, value, span });
+                        }
+
+                        Expression::Index {
+                            object,
+                            index,
+                            span,
+                        } => {
+                            return Ok(Statement::IndexAssignment {
+                                object: *object,
+                                index: *index,
+                                value,
+                                span,
+                            });
+                        }
+
+                        _ => {
+                            return Err(ParserError::UnexpectedToken);
+                        }
+                    }
                 }
 
-                let expression = self.parse_expression()?;
                 Ok(Statement::Expression(expression))
             }
 
@@ -175,17 +199,17 @@ impl Parser {
         Ok(Statement::VariableDeclaration { name, value, span })
     }
 
-    fn parse_assignment(&mut self) -> Result<Statement, ParserError> {
-        let span = self.current().span.clone();
+    // fn parse_assignment(&mut self) -> Result<Statement, ParserError> {
+    //     let span = self.current().span.clone();
 
-        let name = self.consume(TokenKind::Identifier)?.lexeme.clone();
+    //     let name = self.consume(TokenKind::Identifier)?.lexeme.clone();
 
-        self.consume(TokenKind::Equal)?;
+    //     self.consume(TokenKind::Equal)?;
 
-        let value = self.parse_expression()?;
+    //     let value = self.parse_expression()?;
 
-        Ok(Statement::Assignment { name, value, span })
-    }
+    //     Ok(Statement::Assignment { name, value, span })
+    // }
 
     fn parse_expression(&mut self) -> Result<Expression, ParserError> {
         self.parse_equality()
@@ -195,35 +219,49 @@ impl Parser {
         let mut expression = self.parse_primary()?;
 
         loop {
-            if self.current().kind != TokenKind::LeftParen {
+            if self.current().kind == TokenKind::LeftParen {
+                self.advance();
+
+                let mut arguments = Vec::new();
+
+                if self.current().kind != TokenKind::RightParen {
+                    loop {
+                        arguments.push(self.parse_expression()?);
+
+                        if self.current().kind != TokenKind::Comma {
+                            break;
+                        }
+
+                        self.advance();
+                    }
+                }
+
+                self.consume(TokenKind::RightParen)?;
+
+                let span = expression.span().clone();
+
+                expression = Expression::Call {
+                    callee: Box::new(expression),
+                    arguments,
+                    span,
+                };
+            } else if self.current().kind == TokenKind::LeftBracket {
+                self.advance();
+
+                let index = self.parse_expression()?;
+
+                self.consume(TokenKind::RightBracket)?;
+
+                let span = expression.span().clone();
+
+                expression = Expression::Index {
+                    object: Box::new(expression),
+                    index: Box::new(index),
+                    span,
+                };
+            } else {
                 break;
             }
-
-            self.advance();
-
-            let mut arguments = Vec::new();
-
-            if self.current().kind != TokenKind::RightParen {
-                loop {
-                    arguments.push(self.parse_expression()?);
-
-                    if self.current().kind != TokenKind::Comma {
-                        break;
-                    }
-
-                    self.advance();
-                }
-            }
-
-            self.consume(TokenKind::RightParen)?;
-
-            let span = expression.span().clone();
-
-            expression = Expression::Call {
-                callee: Box::new(expression),
-                arguments,
-                span,
-            };
         }
 
         Ok(expression)
@@ -409,6 +447,28 @@ impl Parser {
                 self.consume(TokenKind::RightParen)?;
 
                 Ok(expression)
+            }
+
+            TokenKind::LeftBracket => {
+                let span = self.advance().span;
+
+                let mut elements = Vec::new();
+
+                if self.current().kind != TokenKind::RightBracket {
+                    loop {
+                        elements.push(self.parse_expression()?);
+
+                        if self.current().kind != TokenKind::Comma {
+                            break;
+                        }
+
+                        self.advance();
+                    }
+                }
+
+                self.consume(TokenKind::RightBracket)?;
+
+                Ok(Expression::ArrayLiteral { elements, span })
             }
 
             _ => Err(ParserError::UnexpectedToken),
