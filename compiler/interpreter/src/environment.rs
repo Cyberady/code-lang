@@ -4,6 +4,8 @@ use std::collections::HashMap;
 
 use crate::value::Value;
 
+use lexer::span::Span;
+
 #[derive(Debug, Default)]
 pub struct Environment {
     variables: HashMap<String, Variable>,
@@ -38,7 +40,10 @@ impl Environment {
     ) -> Result<(), crate::error::InterpreterError> {
         if let Some(variable) = self.variables.get_mut(&name) {
             if variable.is_const {
-                return Err(crate::error::InterpreterError::CannotAssignConstant);
+                return Err(crate::error::InterpreterError::CannotAssignConstant {
+                    name: name.clone(),
+                    span: Span::default(),
+                });
             }
 
             variable.value = value;

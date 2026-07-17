@@ -1,5 +1,1 @@
-func greet() {
-    print("Hello")
-}
-
-greet()
+print((10 + 20) * 5)

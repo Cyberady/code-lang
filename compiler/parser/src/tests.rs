@@ -20,7 +20,7 @@ fn parses_binary_expression() {
     let program = parser.parse().unwrap();
 
     match &program.statements[0] {
-        Statement::VariableDeclaration { name, value } => {
+        Statement::VariableDeclaration { name, value, .. } => {
             assert_eq!(name, "result");
 
             match value {
@@ -28,11 +28,24 @@ fn parses_binary_expression() {
                     left,
                     operator,
                     right,
+                    ..
                 } => {
                     assert_eq!(*operator, BinaryOperator::Plus);
 
-                    assert_eq!(**left, Expression::NumberLiteral("10".into()));
-                    assert_eq!(**right, Expression::NumberLiteral("20".into()));
+                    match &**left {
+                        Expression::NumberLiteral { value, .. } => {
+                            assert_eq!(value, "10");
+                        }
+
+                        _ => panic!("Expected number literal"),
+                    }
+                    match &**right {
+                        Expression::NumberLiteral { value, .. } => {
+                            assert_eq!(value, "20");
+                        }
+
+                        _ => panic!("Expected number literal"),
+                    }
                 }
 
                 _ => panic!("Expected binary expression"),
@@ -45,6 +58,10 @@ fn parses_binary_expression() {
 
         Statement::FunctionDeclaration { .. } => {
             panic!("Unexpected function declaration");
+        }
+
+        Statement::Return { .. } => {
+            panic!("Unexpected return statement");
         }
 
         Statement::Expression(_) => {

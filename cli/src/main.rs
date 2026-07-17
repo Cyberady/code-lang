@@ -17,39 +17,56 @@ fn main() {
     let text = match fs::read_to_string(path) {
         Ok(text) => text,
         Err(error) => {
-            eprintln!("File Error:\n{}", error);
+            eprintln!("File Error");
+            eprintln!("{error}");
             process::exit(1);
         }
     };
 
     let source = SourceFile::new(path.clone(), text);
 
+    // -------------------------
+    // Lexer
+    // -------------------------
     let mut lexer = Lexer::new(&source);
 
     let tokens = match lexer.tokenize() {
         Ok(tokens) => tokens,
         Err(error) => {
-            eprintln!("Lexer Error:\n{}", error);
+            eprintln!("{error}");
             process::exit(1);
         }
     };
 
+    // -------------------------
+    // Parser
+    // -------------------------
     let mut parser = Parser::new(tokens);
 
     let program = match parser.parse() {
         Ok(program) => program,
         Err(error) => {
-            eprintln!("Parser Error:\n{}", error);
+            eprintln!("{error}");
             process::exit(1);
         }
     };
 
-    let mut interpreter = Interpreter::new();
+    // -------------------------
+    // Interpreter
+    // -------------------------
+    let mut interpreter = Interpreter::new(&source);
 
-    if let Err(error) = interpreter.execute(&program) {
-        eprintln!("Runtime Error:\n{}", error);
-        process::exit(1);
+    match interpreter.execute(&program) {
+        Ok(()) => {
+            println!("Program executed successfully.");
+        }
+
+        Err(error) => {
+            let diagnostic = interpreter.diagnostic(&error);
+
+            eprintln!("{}", diagnostic.render());
+
+            process::exit(1);
+        }
     }
-
-    println!("Program executed successfully.");
 }

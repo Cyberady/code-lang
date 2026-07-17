@@ -1,5 +1,7 @@
 //! Abstract Syntax Tree definitions for the Code programming language.
 
+use lexer::span::Span;
+
 #[derive(Debug, Clone, PartialEq)]
 pub struct Program {
     pub statements: Vec<Statement>,
@@ -10,49 +12,94 @@ pub enum Statement {
     VariableDeclaration {
         name: String,
         value: Expression,
+        span: Span,
     },
 
     Assignment {
         name: String,
         value: Expression,
+        span: Span,
     },
 
     FunctionDeclaration {
         name: String,
         parameters: Vec<String>,
         body: Vec<Statement>,
+        span: Span,
+    },
+
+    Return {
+        value: Expression,
+        span: Span,
     },
 
     If {
         condition: Expression,
         then_branch: Vec<Statement>,
         else_branch: Option<Vec<Statement>>,
+        span: Span,
     },
 
     Expression(Expression),
 }
 #[derive(Debug, Clone, PartialEq)]
 pub enum Expression {
-    Identifier(String),
+    Identifier {
+        name: String,
+        span: Span,
+    },
 
-    NumberLiteral(String),
+    NumberLiteral {
+        value: String,
+        span: Span,
+    },
 
-    StringLiteral(String),
+    StringLiteral {
+        value: String,
+        span: Span,
+    },
 
-    BooleanLiteral(bool),
+    BooleanLiteral {
+        value: bool,
+        span: Span,
+    },
 
-    NullLiteral,
+    NullLiteral {
+        span: Span,
+    },
 
     Binary {
         left: Box<Expression>,
         operator: BinaryOperator,
         right: Box<Expression>,
+        span: Span,
     },
 
     Call {
         callee: Box<Expression>,
         arguments: Vec<Expression>,
+        span: Span,
     },
+}
+
+impl Expression {
+    pub fn span(&self) -> &Span {
+        match self {
+            Expression::Identifier { span, .. } => span,
+
+            Expression::NumberLiteral { span, .. } => span,
+
+            Expression::StringLiteral { span, .. } => span,
+
+            Expression::BooleanLiteral { span, .. } => span,
+
+            Expression::NullLiteral { span } => span,
+
+            Expression::Binary { span, .. } => span,
+
+            Expression::Call { span, .. } => span,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]

@@ -38,6 +38,8 @@ impl Parser {
 
             TokenKind::Func => self.parse_function_declaration(),
 
+            TokenKind::Return => self.parse_return_statement(),
+
             TokenKind::If => self.parse_if_statement(),
 
             TokenKind::Identifier => {
@@ -59,8 +61,9 @@ impl Parser {
     }
 
     fn parse_if_statement(&mut self) -> Result<Statement, ParserError> {
-        // consume "if"
-        self.advance();
+        let span = self.current().span.clone();
+
+        self.advance(); // consume if
 
         let condition = self.parse_expression()?;
 
@@ -96,10 +99,12 @@ impl Parser {
             condition,
             then_branch,
             else_branch,
+            span,
         })
     }
 
     fn parse_function_declaration(&mut self) -> Result<Statement, ParserError> {
+        let span = self.current().span.clone();
         // consume 'func'
         self.advance();
 
@@ -109,13 +114,23 @@ impl Parser {
         // (
         self.consume(TokenKind::LeftParen)?;
 
-        // Version 1:
-        // no parameters yet
-        let parameters = Vec::new();
+        let mut parameters = Vec::new();
 
-        // )
+        if self.current().kind != TokenKind::RightParen {
+            loop {
+                let parameter = self.consume(TokenKind::Identifier)?.lexeme.clone();
+
+                parameters.push(parameter);
+
+                if self.current().kind != TokenKind::Comma {
+                    break;
+                }
+
+                self.advance();
+            }
+        }
+
         self.consume(TokenKind::RightParen)?;
-
         // {
         self.consume(TokenKind::LeftBrace)?;
 
@@ -132,11 +147,24 @@ impl Parser {
             name,
             parameters,
             body,
+            span,
         })
     }
 
+    fn parse_return_statement(&mut self) -> Result<Statement, ParserError> {
+        let span = self.current().span.clone();
+
+        self.advance(); // consume return
+
+        let value = self.parse_expression()?;
+
+        Ok(Statement::Return { value, span })
+    }
+
     fn parse_variable_declaration(&mut self) -> Result<Statement, ParserError> {
-        self.advance(); // consume 'const'
+        let span = self.current().span.clone();
+
+        self.advance(); // consume const
 
         let name = self.consume(TokenKind::Identifier)?.lexeme.clone();
 
@@ -144,17 +172,19 @@ impl Parser {
 
         let value = self.parse_expression()?;
 
-        Ok(Statement::VariableDeclaration { name, value })
+        Ok(Statement::VariableDeclaration { name, value, span })
     }
 
     fn parse_assignment(&mut self) -> Result<Statement, ParserError> {
+        let span = self.current().span.clone();
+
         let name = self.consume(TokenKind::Identifier)?.lexeme.clone();
 
         self.consume(TokenKind::Equal)?;
 
         let value = self.parse_expression()?;
 
-        Ok(Statement::Assignment { name, value })
+        Ok(Statement::Assignment { name, value, span })
     }
 
     fn parse_expression(&mut self) -> Result<Expression, ParserError> {
@@ -174,14 +204,25 @@ impl Parser {
             let mut arguments = Vec::new();
 
             if self.current().kind != TokenKind::RightParen {
-                arguments.push(self.parse_expression()?);
+                loop {
+                    arguments.push(self.parse_expression()?);
+
+                    if self.current().kind != TokenKind::Comma {
+                        break;
+                    }
+
+                    self.advance();
+                }
             }
 
             self.consume(TokenKind::RightParen)?;
 
+            let span = expression.span().clone();
+
             expression = Expression::Call {
                 callee: Box::new(expression),
                 arguments,
+                span,
             };
         }
 
@@ -204,10 +245,13 @@ impl Parser {
 
             let right = self.parse_factor()?;
 
+            let span = expression.span().clone();
+
             expression = Expression::Binary {
                 left: Box::new(expression),
                 operator,
                 right: Box::new(right),
+                span,
             };
         }
 
@@ -232,10 +276,13 @@ impl Parser {
 
             let right = self.parse_term()?;
 
+            let span = expression.span().clone();
+
             expression = Expression::Binary {
                 left: Box::new(expression),
                 operator,
                 right: Box::new(right),
+                span,
             };
         }
 
@@ -258,10 +305,13 @@ impl Parser {
 
             let right = self.parse_comparison()?;
 
+            let span = expression.span().clone();
+
             expression = Expression::Binary {
                 left: Box::new(expression),
                 operator,
                 right: Box::new(right),
+                span,
             };
         }
 
@@ -283,12 +333,15 @@ impl Parser {
 
             self.advance();
 
-            let right = self.parse_primary()?;
+            let right = self.parse_call()?;
+
+            let span = expression.span().clone();
 
             expression = Expression::Binary {
                 left: Box::new(expression),
                 operator,
                 right: Box::new(right),
+                span,
             };
         }
 
@@ -298,33 +351,64 @@ impl Parser {
     fn parse_primary(&mut self) -> Result<Expression, ParserError> {
         match self.current().kind {
             TokenKind::Number => {
-                let value = self.advance().lexeme.clone();
-                Ok(Expression::NumberLiteral(value))
+                let token = self.advance().clone();
+
+                Ok(Expression::NumberLiteral {
+                    value: token.lexeme,
+                    span: token.span,
+                })
             }
 
             TokenKind::String => {
-                let value = self.advance().lexeme.clone();
-                Ok(Expression::StringLiteral(value))
+                let token = self.advance().clone();
+
+                Ok(Expression::StringLiteral {
+                    value: token.lexeme,
+                    span: token.span,
+                })
             }
 
             TokenKind::Identifier => {
-                let value = self.advance().lexeme.clone();
-                Ok(Expression::Identifier(value))
+                let token = self.advance().clone();
+
+                Ok(Expression::Identifier {
+                    name: token.lexeme,
+                    span: token.span,
+                })
             }
 
             TokenKind::True => {
-                self.advance();
-                Ok(Expression::BooleanLiteral(true))
+                let token = self.advance().clone();
+
+                Ok(Expression::BooleanLiteral {
+                    value: true,
+                    span: token.span,
+                })
             }
 
             TokenKind::False => {
-                self.advance();
-                Ok(Expression::BooleanLiteral(false))
+                let token = self.advance().clone();
+
+                Ok(Expression::BooleanLiteral {
+                    value: false,
+                    span: token.span,
+                })
             }
 
             TokenKind::Null => {
+                let token = self.advance().clone();
+
+                Ok(Expression::NullLiteral { span: token.span })
+            }
+
+            TokenKind::LeftParen => {
                 self.advance();
-                Ok(Expression::NullLiteral)
+
+                let expression = self.parse_expression()?;
+
+                self.consume(TokenKind::RightParen)?;
+
+                Ok(expression)
             }
 
             _ => Err(ParserError::UnexpectedToken),

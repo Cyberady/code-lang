@@ -1,25 +1,38 @@
 //! Interpreter errors.
 
+use std::fmt;
+
+use crate::value::Value;
+use lexer::span::Span;
+
 #[derive(Debug)]
 pub enum InterpreterError {
-    UndefinedVariable,
-    InvalidBinaryOperation,
-    CannotAssignConstant,
+    UndefinedVariable { name: String, span: Span },
+
+    CannotAssignConstant { name: String, span: Span },
+
+    InvalidBinaryOperation { operator: String, span: Span },
+
+    Return(Value),
 }
 
-impl std::fmt::Display for InterpreterError {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+impl fmt::Display for InterpreterError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            InterpreterError::UndefinedVariable => {
-                write!(f, "Undefined variable.")
+            InterpreterError::UndefinedVariable { name, .. } => {
+                write!(f, "Undefined variable '{}'", name)
             }
 
-            InterpreterError::InvalidBinaryOperation => {
-                write!(f, "Invalid binary operation.")
+            InterpreterError::CannotAssignConstant { name, .. } => {
+                write!(f, "Cannot assign to constant '{}'", name)
             }
 
-            InterpreterError::CannotAssignConstant => {
-                write!(f, "Cannot modify constant.")
+            InterpreterError::InvalidBinaryOperation { operator, .. } => {
+                write!(f, "Invalid use of operator '{}'", operator)
+            }
+
+            InterpreterError::Return(_) => {
+                write!(f, "Internal interpreter return")
             }
         }
     }

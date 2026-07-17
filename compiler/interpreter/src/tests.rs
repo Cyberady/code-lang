@@ -16,7 +16,9 @@ fn executes_variable_declaration() {
 
     let program = parser.parse().unwrap();
 
-    let mut interpreter = Interpreter::new();
+    let source = SourceFile::new("test.code".to_string(), "".to_string());
+
+    let mut interpreter = Interpreter::new(&source);
 
     interpreter.execute(&program).unwrap();
 
