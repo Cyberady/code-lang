@@ -35,8 +35,24 @@ impl<'a> Interpreter<'a> {
         Ok(())
     }
 
-    fn execute_statement(&mut self, statement: &Statement) -> Result<(), InterpreterError> {
+    fn execute_statement(
+        &mut self,
+        statement: &Statement,
+    ) -> Result<Option<Value>, InterpreterError> {
         match statement {
+            Statement::PropertyAssignment {
+                object,
+                property,
+                value,
+                ..
+            } => {
+                let value = self.evaluate(value)?;
+
+                self.assign_property(object, property, value)?;
+
+                Ok(None)
+            }
+
             Statement::VariableDeclaration {
                 name,
                 value,
@@ -48,7 +64,7 @@ impl<'a> Interpreter<'a> {
                     .borrow_mut()
                     .define(name.clone(), value, true);
 
-                Ok(())
+                Ok(None)
             }
 
             Statement::IndexAssignment {
@@ -107,7 +123,7 @@ impl<'a> Interpreter<'a> {
                     .borrow_mut()
                     .assign(object_name, Value::Array(array))?;
 
-                Ok(())
+                Ok(None)
             }
 
             Statement::Assignment {
@@ -119,7 +135,7 @@ impl<'a> Interpreter<'a> {
 
                 self.environment.borrow_mut().assign(name.clone(), value)?;
 
-                Ok(())
+                Ok(None)
             }
 
             Statement::If {
@@ -167,7 +183,7 @@ impl<'a> Interpreter<'a> {
                     }
                 }
 
-                Ok(())
+                Ok(None)
             }
 
             Statement::FunctionDeclaration {
@@ -184,12 +200,12 @@ impl<'a> Interpreter<'a> {
                     },
                 );
 
-                Ok(())
+                Ok(None)
             }
 
             Statement::Expression(expression) => {
-                self.evaluate(expression)?;
-                Ok(())
+                let value = self.evaluate(expression)?;
+                Ok(Some(value))
             }
 
             Statement::Return { value, .. } => {
@@ -246,6 +262,16 @@ impl<'a> Interpreter<'a> {
                 Ok(Value::Array(values))
             }
 
+            Expression::ObjectLiteral { properties, .. } => {
+                let mut object = std::collections::HashMap::new();
+
+                for (key, value) in properties {
+                    object.insert(key.clone(), self.evaluate(value)?);
+                }
+
+                Ok(Value::Object(object))
+            }
+
             Expression::Index { object, index, .. } => {
                 let object = self.evaluate(object)?;
                 let index = self.evaluate(index)?;
@@ -269,6 +295,28 @@ impl<'a> Interpreter<'a> {
                     }),
                 }
             }
+
+            Expression::Property {
+                object, property, ..
+            } => {
+                let object = self.evaluate(object)?;
+
+                match object {
+                    Value::Object(properties) => match properties.get(property) {
+                        Some(value) => Ok(value.clone()),
+
+                        None => Err(InterpreterError::InvalidBinaryOperation {
+                            operator: format!("undefined property '{}'", property),
+                            span: Span::default(),
+                        }),
+                    },
+
+                    _ => Err(InterpreterError::InvalidBinaryOperation {
+                        operator: "property access".to_string(),
+                        span: Span::default(),
+                    }),
+                }
+            }
         }
     }
 
@@ -281,15 +329,12 @@ impl<'a> Interpreter<'a> {
             Expression::Identifier { name, .. } if name == "print" => self.builtin_print(arguments),
 
             Expression::Identifier { name, span } => {
-                let function = self
-                    .environment
-                    .borrow()
-                    .get_function(name)
-                    .cloned()
-                    .ok_or(InterpreterError::UndefinedVariable {
+                let function = self.environment.borrow().get_function(name).ok_or(
+                    InterpreterError::UndefinedVariable {
                         name: name.clone(),
                         span: *span,
-                    })?;
+                    },
+                )?;
 
                 if function.parameters.len() != arguments.len() {
                     return Err(InterpreterError::InvalidBinaryOperation {
@@ -313,19 +358,15 @@ impl<'a> Interpreter<'a> {
                 }
 
                 let result = {
-                    let last_index = function.body.len().saturating_sub(1);
-
                     let mut value = Value::Null;
 
-                    for (index, statement) in function.body.iter().enumerate() {
+                    for statement in &function.body {
                         match self.execute_statement(statement) {
-                            Ok(()) => {
-                                if index == last_index {
-                                    if let Statement::Expression(expression) = statement {
-                                        value = self.evaluate(expression)?;
-                                    }
-                                }
+                            Ok(Some(return_value)) => {
+                                value = return_value;
                             }
+
+                            Ok(None) => {}
 
                             Err(InterpreterError::Return(return_value)) => {
                                 value = return_value;
@@ -390,10 +431,34 @@ impl<'a> Interpreter<'a> {
                         Value::Boolean(b) => print!("{b}"),
                         Value::Null => print!("null"),
                         Value::Array(_) => print!("[...]"),
+                        Value::Object(_) => print!("{{...}}"),
                     }
                 }
 
                 println!("]");
+            }
+
+            Value::Object(properties) => {
+                print!("{{");
+
+                for (index, (key, value)) in properties.iter().enumerate() {
+                    if index > 0 {
+                        print!(", ");
+                    }
+
+                    print!("{key}: ");
+
+                    match value {
+                        Value::Number(n) => print!("{n}"),
+                        Value::String(s) => print!("{s}"),
+                        Value::Boolean(b) => print!("{b}"),
+                        Value::Null => print!("null"),
+                        Value::Array(_) => print!("[...]"),
+                        Value::Object(_) => print!("{{...}}"),
+                    }
+                }
+
+                println!("}}");
             }
         }
 
@@ -447,6 +512,95 @@ impl<'a> Interpreter<'a> {
 
             _ => Err(InterpreterError::InvalidBinaryOperation {
                 operator: "?".to_string(),
+                span: Span::default(),
+            }),
+        }
+    }
+
+    fn assign_property(
+        &mut self,
+        object: &Expression,
+        property: &str,
+        value: Value,
+    ) -> Result<(), InterpreterError> {
+        let (root_name, mut path) = self.property_path(object)?;
+
+        let root_object = self.environment.borrow().get(&root_name).ok_or(
+            InterpreterError::UndefinedVariable {
+                name: root_name.clone(),
+                span: Span::default(),
+            },
+        )?;
+
+        path.push(property.to_string());
+
+        let updated = self.update_object_property(root_object, &path, value)?;
+
+        self.environment.borrow_mut().assign(root_name, updated)?;
+
+        Ok(())
+    }
+
+    fn update_object_property(
+        &mut self,
+        object: Value,
+        path: &[String],
+        value: Value,
+    ) -> Result<Value, InterpreterError> {
+        if path.is_empty() {
+            return Ok(value);
+        }
+
+        let mut map = match object {
+            Value::Object(map) => map,
+
+            _ => {
+                return Err(InterpreterError::InvalidBinaryOperation {
+                    operator: "not an object".to_string(),
+                    span: Span::default(),
+                });
+            }
+        };
+
+        let key = &path[0];
+
+        if path.len() == 1 {
+            map.insert(key.clone(), value);
+        } else {
+            let child = map
+                .remove(key)
+                .ok_or(InterpreterError::InvalidBinaryOperation {
+                    operator: format!("undefined property '{}'", key),
+                    span: Span::default(),
+                })?;
+
+            let updated_child = self.update_object_property(child, &path[1..], value)?;
+
+            map.insert(key.clone(), updated_child);
+        }
+
+        Ok(Value::Object(map))
+    }
+
+    fn property_path(
+        &self,
+        expression: &Expression,
+    ) -> Result<(String, Vec<String>), InterpreterError> {
+        match expression {
+            Expression::Identifier { name, .. } => Ok((name.clone(), Vec::new())),
+
+            Expression::Property {
+                object, property, ..
+            } => {
+                let (root, mut path) = self.property_path(object)?;
+
+                path.push(property.clone());
+
+                Ok((root, path))
+            }
+
+            _ => Err(InterpreterError::InvalidBinaryOperation {
+                operator: "invalid property assignment".to_string(),
                 span: Span::default(),
             }),
         }

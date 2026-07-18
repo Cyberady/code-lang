@@ -68,6 +68,19 @@ impl Parser {
                             });
                         }
 
+                        Expression::Property {
+                            object,
+                            property,
+                            span,
+                        } => {
+                            return Ok(Statement::PropertyAssignment {
+                                object: *object,
+                                property,
+                                value,
+                                span,
+                            });
+                        }
+
                         _ => {
                             return Err(ParserError::UnexpectedToken);
                         }
@@ -257,6 +270,18 @@ impl Parser {
                 expression = Expression::Index {
                     object: Box::new(expression),
                     index: Box::new(index),
+                    span,
+                };
+            } else if self.current().kind == TokenKind::Dot {
+                self.advance();
+
+                let property = self.consume_identifier()?;
+
+                let span = expression.span().clone();
+
+                expression = Expression::Property {
+                    object: Box::new(expression),
+                    property,
                     span,
                 };
             } else {
@@ -471,6 +496,32 @@ impl Parser {
                 Ok(Expression::ArrayLiteral { elements, span })
             }
 
+            TokenKind::LeftBrace => {
+                let span = self.advance().span.clone();
+
+                let mut properties = Vec::new();
+
+                while !self.check(TokenKind::RightBrace) {
+                    let key = self.consume_identifier()?;
+
+                    self.consume(TokenKind::Colon)?;
+
+                    let value = self.parse_expression()?;
+
+                    properties.push((key, value));
+
+                    if self.current().kind == TokenKind::Comma {
+                        self.advance();
+                    } else {
+                        break;
+                    }
+                }
+
+                self.consume(TokenKind::RightBrace)?;
+
+                Ok(Expression::ObjectLiteral { properties, span })
+            }
+
             _ => Err(ParserError::UnexpectedToken),
         }
     }
@@ -488,6 +539,18 @@ impl Parser {
     fn consume(&mut self, expected: TokenKind) -> Result<&Token, ParserError> {
         if self.current().kind == expected {
             Ok(self.advance())
+        } else {
+            Err(ParserError::UnexpectedToken)
+        }
+    }
+
+    fn check(&self, kind: TokenKind) -> bool {
+        self.current().kind == kind
+    }
+
+    fn consume_identifier(&mut self) -> Result<String, ParserError> {
+        if self.current().kind == TokenKind::Identifier {
+            Ok(self.advance().lexeme.clone())
         } else {
             Err(ParserError::UnexpectedToken)
         }

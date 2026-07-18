@@ -46,40 +46,23 @@ impl Environment {
         self.variables.insert(name, Variable { value, is_const });
     }
 
-    fn assign_existing(
-        &mut self,
-        name: &str,
-        value: Value,
-    ) -> Result<bool, crate::error::InterpreterError> {
-        if let Some(variable) = self.variables.get_mut(name) {
-            if variable.is_const {
-                return Err(crate::error::InterpreterError::CannotAssignConstant {
-                    name: name.to_string(),
-                    span: Span::default(),
-                });
-            }
-
-            variable.value = value;
-            return Ok(true);
-        }
-
-        if let Some(parent) = &self.parent {
-            return parent.borrow_mut().assign_existing(name, value);
-        }
-
-        Ok(false)
-    }
-
     pub fn assign(
         &mut self,
         name: String,
         value: Value,
     ) -> Result<(), crate::error::InterpreterError> {
-        if self.assign_existing(&name, value.clone())? {
-            return Ok(());
-        }
+        if let Some(variable) = self.variables.get_mut(&name) {
+            if variable.is_const {
+                return Err(crate::error::InterpreterError::CannotAssignConstant {
+                    name,
+                    span: Span::default(),
+                });
+            }
 
-        self.define(name, value, false);
+            variable.value = value;
+        } else {
+            self.define(name, value, false);
+        }
 
         Ok(())
     }
@@ -159,7 +142,15 @@ impl Environment {
         self.functions.insert(name, function);
     }
 
-    pub fn get_function(&self, name: &str) -> Option<&Function> {
-        self.functions.get(name)
+    pub fn get_function(&self, name: &str) -> Option<Function> {
+        if let Some(function) = self.functions.get(name) {
+            return Some(function.clone());
+        }
+
+        if let Some(parent) = &self.parent {
+            return parent.borrow().get_function(name);
+        }
+
+        None
     }
 }

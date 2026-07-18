@@ -8,5 +8,7 @@ pub enum Value {
 
     Array(Vec<Value>),
 
+    Object(std::collections::HashMap<String, Value>),
+
     Null,
 }

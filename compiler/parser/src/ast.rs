@@ -28,6 +28,13 @@ pub enum Statement {
         span: Span,
     },
 
+    PropertyAssignment {
+        object: Expression,
+        property: String,
+        value: Expression,
+        span: Span,
+    },
+
     FunctionDeclaration {
         name: String,
         parameters: Vec<String>,
@@ -66,6 +73,11 @@ pub enum Expression {
         span: Span,
     },
 
+    ObjectLiteral {
+        properties: Vec<(String, Expression)>,
+        span: Span,
+    },
+
     StringLiteral {
         value: String,
         span: Span,
@@ -98,6 +110,12 @@ pub enum Expression {
         index: Box<Expression>,
         span: Span,
     },
+
+    Property {
+        object: Box<Expression>,
+        property: String,
+        span: Span,
+    },
 }
 
 impl Expression {
@@ -108,6 +126,8 @@ impl Expression {
             Expression::NumberLiteral { span, .. } => span,
 
             Expression::ArrayLiteral { span, .. } => span,
+
+            Expression::ObjectLiteral { span, .. } => span,
 
             Expression::StringLiteral { span, .. } => span,
 
@@ -120,6 +140,8 @@ impl Expression {
             Expression::Call { span, .. } => span,
 
             Expression::Index { span, .. } => span,
+
+            Expression::Property { span, .. } => span,
         }
     }
 }
