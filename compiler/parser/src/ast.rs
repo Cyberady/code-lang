@@ -99,6 +99,12 @@ pub enum Expression {
         span: Span,
     },
 
+    Unary {
+        operator: UnaryOperator,
+        expression: Box<Expression>,
+        span: Span,
+    },
+
     Call {
         callee: Box<Expression>,
         arguments: Vec<Expression>,
@@ -137,6 +143,8 @@ impl Expression {
 
             Expression::Binary { span, .. } => span,
 
+            Expression::Unary { span, .. } => span,
+
             Expression::Call { span, .. } => span,
 
             Expression::Index { span, .. } => span,
@@ -162,4 +170,40 @@ pub enum BinaryOperator {
 
     Greater,
     GreaterEqual,
+
+    And,
+    Or,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum UnaryOperator {
+    Not,
+}
+
+impl UnaryOperator {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            UnaryOperator::Not => "not",
+        }
+    }
+}
+
+impl BinaryOperator {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            BinaryOperator::Plus => "+",
+            BinaryOperator::Minus => "-",
+            BinaryOperator::Multiply => "*",
+            BinaryOperator::Divide => "/",
+            BinaryOperator::Modulo => "%",
+            BinaryOperator::Less => "<",
+            BinaryOperator::LessEqual => "<=",
+            BinaryOperator::Greater => ">",
+            BinaryOperator::GreaterEqual => ">=",
+            BinaryOperator::EqualEqual => "==",
+            BinaryOperator::BangEqual => "!=",
+            BinaryOperator::And => "and",
+            BinaryOperator::Or => "or",
+        }
+    }
 }

@@ -35,6 +35,10 @@ pub enum TokenKind {
     False,
     Null,
 
+    And,
+    Or,
+    Not,
+
     // -------------------------
     // Operators
     // -------------------------

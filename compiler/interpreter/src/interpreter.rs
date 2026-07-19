@@ -1,8 +1,8 @@
 //! Interpreter implementation.
 
-use parser::ast::{ BinaryOperator, Expression, Program, Statement };
+use parser::ast::{BinaryOperator, Expression, Program, Statement, UnaryOperator};
 
-use crate::{ environment::Environment, error::InterpreterError, value::Value };
+use crate::{environment::Environment, error::InterpreterError, value::Value};
 
 use lexer::source::SourceFile;
 
@@ -10,7 +10,7 @@ use crate::diagnostic::Diagnostic;
 
 use lexer::span::Span;
 
-use std::{ cell::RefCell, rc::Rc };
+use std::{cell::RefCell, rc::Rc};
 
 pub struct Interpreter<'a> {
     environment: Rc<RefCell<Environment>>,
@@ -37,10 +37,15 @@ impl<'a> Interpreter<'a> {
 
     fn execute_statement(
         &mut self,
-        statement: &Statement
+        statement: &Statement,
     ) -> Result<Option<Value>, InterpreterError> {
         match statement {
-            Statement::PropertyAssignment { object, property, value, .. } => {
+            Statement::PropertyAssignment {
+                object,
+                property,
+                value,
+                ..
+            } => {
                 let value = self.evaluate(value)?;
 
                 self.assign_property(object, property, value)?;
@@ -48,22 +53,33 @@ impl<'a> Interpreter<'a> {
                 Ok(None)
             }
 
-            Statement::VariableDeclaration { name, value, span: _ } => {
+            Statement::VariableDeclaration {
+                name,
+                value,
+                span: _,
+            } => {
                 let value = self.evaluate(value)?;
 
-                self.environment.borrow_mut().define(name.clone(), value, true);
+                self.environment
+                    .borrow_mut()
+                    .define(name.clone(), value, true);
 
                 Ok(None)
             }
 
-            Statement::IndexAssignment { object, index, value, .. } => {
+            Statement::IndexAssignment {
+                object,
+                index,
+                value,
+                span,
+            } => {
                 let object_name = match object {
                     Expression::Identifier { name, .. } => name.clone(),
 
                     _ => {
-                        return Err(InterpreterError::InvalidBinaryOperation {
-                            operator: "invalid assignment".to_string(),
-                            span: lexer::span::Span::default(),
+                        return Err(InterpreterError::RuntimeError {
+                            message: "Value is not an array.".to_string(),
+                            span: *span,
                         });
                     }
                 };
@@ -72,9 +88,9 @@ impl<'a> Interpreter<'a> {
                     Some(Value::Array(values)) => values,
 
                     _ => {
-                        return Err(InterpreterError::InvalidBinaryOperation {
-                            operator: "not an array".to_string(),
-                            span: lexer::span::Span::default(),
+                        return Err(InterpreterError::RuntimeError {
+                            message: "Value is not an array.".to_string(),
+                            span: *span,
                         });
                     }
                 };
@@ -87,28 +103,34 @@ impl<'a> Interpreter<'a> {
                     Value::Number(n) => n as usize,
 
                     _ => {
-                        return Err(InterpreterError::InvalidBinaryOperation {
-                            operator: "invalid index".to_string(),
-                            span: lexer::span::Span::default(),
+                        return Err(InterpreterError::RuntimeError {
+                            message: "Array index must be a number.".to_string(),
+                            span: *span,
                         });
                     }
                 };
 
                 if index >= array.len() {
-                    return Err(InterpreterError::InvalidBinaryOperation {
-                        operator: "index out of bounds".to_string(),
-                        span: lexer::span::Span::default(),
+                    return Err(InterpreterError::RuntimeError {
+                        message: "Array index out of bounds.".to_string(),
+                        span: *span,
                     });
                 }
 
                 array[index] = value;
 
-                self.environment.borrow_mut().assign(object_name, Value::Array(array))?;
+                self.environment
+                    .borrow_mut()
+                    .assign(object_name, Value::Array(array))?;
 
                 Ok(None)
             }
 
-            Statement::Assignment { name, value, span: _ } => {
+            Statement::Assignment {
+                name,
+                value,
+                span: _,
+            } => {
                 let value = self.evaluate(value)?;
 
                 self.environment.borrow_mut().assign(name.clone(), value)?;
@@ -116,16 +138,20 @@ impl<'a> Interpreter<'a> {
                 Ok(None)
             }
 
-            Statement::If { condition, then_branch, else_branch, .. } => {
+            Statement::If {
+                condition,
+                then_branch,
+                else_branch,
+                span,
+            } => {
                 let value = self.evaluate(condition)?;
 
                 match value {
                     Value::Boolean(true) => {
                         let previous = self.environment.clone();
 
-                        self.environment = Rc::new(
-                            RefCell::new(Environment::child(previous.clone()))
-                        );
+                        self.environment =
+                            Rc::new(RefCell::new(Environment::child(previous.clone())));
 
                         for statement in then_branch {
                             self.execute_statement(statement)?;
@@ -138,9 +164,8 @@ impl<'a> Interpreter<'a> {
                         if let Some(statements) = else_branch {
                             let previous = self.environment.clone();
 
-                            self.environment = Rc::new(
-                                RefCell::new(Environment::child(previous.clone()))
-                            );
+                            self.environment =
+                                Rc::new(RefCell::new(Environment::child(previous.clone())));
 
                             for statement in statements {
                                 self.execute_statement(statement)?;
@@ -153,7 +178,7 @@ impl<'a> Interpreter<'a> {
                     _ => {
                         return Err(InterpreterError::InvalidBinaryOperation {
                             operator: "?".to_string(),
-                            span: Span::default(),
+                            span: *span,
                         });
                     }
                 }
@@ -161,13 +186,19 @@ impl<'a> Interpreter<'a> {
                 Ok(None)
             }
 
-            Statement::FunctionDeclaration { name, parameters, body, .. } => {
-                self.environment
-                    .borrow_mut()
-                    .define_function(name.clone(), crate::environment::Function {
+            Statement::FunctionDeclaration {
+                name,
+                parameters,
+                body,
+                ..
+            } => {
+                self.environment.borrow_mut().define_function(
+                    name.clone(),
+                    crate::environment::Function {
                         parameters: parameters.clone(),
                         body: body.clone(),
-                    });
+                    },
+                );
 
                 Ok(None)
             }
@@ -196,20 +227,114 @@ impl<'a> Interpreter<'a> {
             Expression::NullLiteral { .. } => Ok(Value::Null),
 
             Expression::Identifier { name, span } => {
-                self.environment.borrow().get(name).ok_or(InterpreterError::UndefinedVariable {
-                    name: name.clone(),
-                    span: *span,
-                })
+                self.environment
+                    .borrow()
+                    .get(name)
+                    .ok_or(InterpreterError::UndefinedVariable {
+                        name: name.clone(),
+                        span: *span,
+                    })
             }
 
-            Expression::Binary { left, operator, right, .. } => {
-                let left = self.evaluate(left)?;
-                let right = self.evaluate(right)?;
+            Expression::Binary {
+                left,
+                operator,
+                right,
+                span,
+            } => {
+                match operator {
+                    BinaryOperator::And => {
+                        let left = self.evaluate(left)?;
 
-                self.evaluate_binary(left, operator, right)
+                        match left {
+                            Value::Boolean(false) => {
+                                // Short-circuit: don't evaluate right
+                                Ok(Value::Boolean(false))
+                            }
+
+                            Value::Boolean(true) => {
+                                let right = self.evaluate(right)?;
+
+                                match right {
+                                    Value::Boolean(value) => Ok(Value::Boolean(value)),
+
+                                    _ => Err(InterpreterError::RuntimeError {
+                                        message: "Operator 'and' requires boolean operands."
+                                            .to_string(),
+                                        span: *span,
+                                    }),
+                                }
+                            }
+
+                            _ => Err(InterpreterError::RuntimeError {
+                                message: "Operator 'and' requires boolean operands.".to_string(),
+                                span: *span,
+                            }),
+                        }
+                    }
+
+                    BinaryOperator::Or => {
+                        let left = self.evaluate(left)?;
+
+                        match left {
+                            Value::Boolean(true) => {
+                                // Short-circuit: don't evaluate right
+                                Ok(Value::Boolean(true))
+                            }
+
+                            Value::Boolean(false) => {
+                                let right = self.evaluate(right)?;
+
+                                match right {
+                                    Value::Boolean(value) => Ok(Value::Boolean(value)),
+
+                                    _ => Err(InterpreterError::RuntimeError {
+                                        message: "Operator 'or' requires boolean operands."
+                                            .to_string(),
+                                        span: *span,
+                                    }),
+                                }
+                            }
+
+                            _ => Err(InterpreterError::RuntimeError {
+                                message: "Operator 'or' requires boolean operands.".to_string(),
+                                span: *span,
+                            }),
+                        }
+                    }
+
+                    _ => {
+                        let left = self.evaluate(left)?;
+                        let right = self.evaluate(right)?;
+
+                        self.evaluate_binary(left, operator, right, *span)
+                    }
+                }
             }
 
-            Expression::Call { callee, arguments, .. } => self.evaluate_call(callee, arguments),
+            Expression::Unary {
+                operator,
+                expression,
+                span,
+            } => {
+                let value = self.evaluate(expression)?;
+
+                match (operator, value) {
+                    (UnaryOperator::Not, Value::Boolean(value)) => Ok(Value::Boolean(!value)),
+
+                    _ => Err(InterpreterError::RuntimeError {
+                        message: format!(
+                            "Operator '{}' requires a boolean operand.",
+                            operator.as_str()
+                        ),
+                        span: *span,
+                    }),
+                }
+            }
+
+            Expression::Call {
+                callee, arguments, ..
+            } => self.evaluate_call(callee, arguments),
 
             Expression::ArrayLiteral { elements, .. } => {
                 let mut values = Vec::new();
@@ -231,7 +356,11 @@ impl<'a> Interpreter<'a> {
                 Ok(Value::Object(object))
             }
 
-            Expression::Index { object, index, .. } => {
+            Expression::Index {
+                object,
+                index,
+                span,
+            } => {
                 let object = self.evaluate(object)?;
                 let index = self.evaluate(index)?;
 
@@ -239,40 +368,47 @@ impl<'a> Interpreter<'a> {
                     (Value::Array(values), Value::Number(i)) => {
                         let i = i as usize;
 
-                        values.get(i).cloned().ok_or(InterpreterError::InvalidBinaryOperation {
-                            operator: "array index out of bounds".to_string(),
-                            span: lexer::span::Span::default(),
-                        })
+                        values
+                            .get(i)
+                            .cloned()
+                            .ok_or(InterpreterError::RuntimeError {
+                                message: "Array index out of bounds.".to_string(),
+                                span: *span,
+                            })
                     }
 
-                    _ =>
-                        Err(InterpreterError::InvalidBinaryOperation {
-                            operator: "invalid array index".to_string(),
-                            span: lexer::span::Span::default(),
-                        }),
+                    _ => Err(InterpreterError::RuntimeError {
+                        message: "Invalid array index.".to_string(),
+                        span: *span,
+                    }),
                 }
             }
 
-            Expression::Property { object, property, .. } => {
+            Expression::Property {
+                object,
+                property,
+                span,
+            } => {
                 let object = self.evaluate(object)?;
 
                 match object {
-                    Value::Object(properties) =>
-                        match properties.get(property) {
-                            Some(value) => Ok(value.clone()),
+                    Value::Array(values) if property == "length" => {
+                        Ok(Value::Number(values.len() as f64))
+                    }
 
-                            None =>
-                                Err(InterpreterError::InvalidBinaryOperation {
-                                    operator: format!("undefined property '{}'", property),
-                                    span: Span::default(),
-                                }),
-                        }
+                    Value::Object(properties) => match properties.get(property) {
+                        Some(value) => Ok(value.clone()),
 
-                    _ =>
-                        Err(InterpreterError::InvalidBinaryOperation {
-                            operator: "property access".to_string(),
-                            span: Span::default(),
+                        None => Err(InterpreterError::RuntimeError {
+                            message: format!("Undefined property '{}'.", property),
+                            span: *span,
                         }),
+                    },
+
+                    _ => Err(InterpreterError::RuntimeError {
+                        message: "Property access is only supported on objects.".to_string(),
+                        span: *span,
+                    }),
                 }
             }
         }
@@ -281,38 +417,44 @@ impl<'a> Interpreter<'a> {
     fn evaluate_call(
         &mut self,
         callee: &Expression,
-        arguments: &[Expression]
+        arguments: &[Expression],
     ) -> Result<Value, InterpreterError> {
         match callee {
             Expression::Identifier { name, .. } if name == "print" => self.builtin_print(arguments),
 
+            Expression::Property {
+                object,
+                property,
+                span,
+            } => self.evaluate_property_call(object, property, arguments, *span),
+
             Expression::Identifier { name, span } => {
-                let function = self.environment
-                    .borrow()
-                    .get_function(name)
-                    .ok_or(InterpreterError::UndefinedVariable {
+                let function = self.environment.borrow().get_function(name).ok_or(
+                    InterpreterError::UndefinedVariable {
                         name: name.clone(),
                         span: *span,
-                    })?;
+                    },
+                )?;
 
                 if function.parameters.len() != arguments.len() {
                     return Err(InterpreterError::InvalidBinaryOperation {
                         operator: "?".to_string(),
-                        span: Span::default(),
+                        span: *span,
                     });
                 }
                 let previous = self.environment.clone();
 
-                let function_environment = Rc::new(
-                    RefCell::new(Environment::child(previous.clone()))
-                );
+                let function_environment =
+                    Rc::new(RefCell::new(Environment::child(previous.clone())));
 
                 self.environment = function_environment;
 
                 for (parameter, argument) in function.parameters.iter().zip(arguments.iter()) {
                     let value = self.evaluate(argument)?;
 
-                    self.environment.borrow_mut().define(parameter.clone(), value, false);
+                    self.environment
+                        .borrow_mut()
+                        .define(parameter.clone(), value, false);
                 }
 
                 let result = {
@@ -346,14 +488,13 @@ impl<'a> Interpreter<'a> {
                 Ok(result)
             }
 
-            _ =>
-                Err(InterpreterError::UndefinedVariable {
-                    name: match callee {
-                        Expression::Identifier { name, .. } => name.clone(),
-                        _ => "<unknown>".to_string(),
-                    },
-                    span: *callee.span(),
-                }),
+            _ => Err(InterpreterError::UndefinedVariable {
+                name: match callee {
+                    Expression::Identifier { name, .. } => name.clone(),
+                    _ => "<unknown>".to_string(),
+                },
+                span: *callee.span(),
+            }),
         }
     }
 
@@ -428,7 +569,8 @@ impl<'a> Interpreter<'a> {
         &self,
         left: Value,
         operator: &BinaryOperator,
-        right: Value
+        right: Value,
+        span: Span,
     ) -> Result<Value, InterpreterError> {
         match (left, operator, right) {
             (Value::Number(a), BinaryOperator::Plus, Value::Number(b)) => Ok(Value::Number(a + b)),
@@ -469,11 +611,10 @@ impl<'a> Interpreter<'a> {
                 Ok(Value::Boolean(a != b))
             }
 
-            _ =>
-                Err(InterpreterError::InvalidBinaryOperation {
-                    operator: "?".to_string(),
-                    span: Span::default(),
-                }),
+            _ => Err(InterpreterError::InvalidBinaryOperation {
+                operator: operator.as_str().to_string(),
+                span,
+            }),
         }
     }
 
@@ -481,17 +622,16 @@ impl<'a> Interpreter<'a> {
         &mut self,
         object: &Expression,
         property: &str,
-        value: Value
+        value: Value,
     ) -> Result<(), InterpreterError> {
         let (root_name, mut path) = self.property_path(object)?;
 
-        let root_object = self.environment
-            .borrow()
-            .get(&root_name)
-            .ok_or(InterpreterError::UndefinedVariable {
+        let root_object = self.environment.borrow().get(&root_name).ok_or(
+            InterpreterError::UndefinedVariable {
                 name: root_name.clone(),
                 span: Span::default(),
-            })?;
+            },
+        )?;
 
         path.push(property.to_string());
 
@@ -506,7 +646,7 @@ impl<'a> Interpreter<'a> {
         &mut self,
         object: Value,
         path: &[String],
-        value: Value
+        value: Value,
     ) -> Result<Value, InterpreterError> {
         if path.is_empty() {
             return Ok(value);
@@ -516,8 +656,8 @@ impl<'a> Interpreter<'a> {
             Value::Object(map) => map,
 
             _ => {
-                return Err(InterpreterError::InvalidBinaryOperation {
-                    operator: "not an object".to_string(),
+                return Err(InterpreterError::RuntimeError {
+                    message: "Value is not an object.".to_string(),
                     span: Span::default(),
                 });
             }
@@ -528,8 +668,8 @@ impl<'a> Interpreter<'a> {
         if path.len() == 1 {
             map.insert(key.clone(), value);
         } else {
-            let child = map.remove(key).ok_or(InterpreterError::InvalidBinaryOperation {
-                operator: format!("undefined property '{}'", key),
+            let child = map.remove(key).ok_or(InterpreterError::RuntimeError {
+                message: format!("Undefined property '{}'.", key),
                 span: Span::default(),
             })?;
 
@@ -543,12 +683,14 @@ impl<'a> Interpreter<'a> {
 
     fn property_path(
         &self,
-        expression: &Expression
+        expression: &Expression,
     ) -> Result<(String, Vec<String>), InterpreterError> {
         match expression {
             Expression::Identifier { name, .. } => Ok((name.clone(), Vec::new())),
 
-            Expression::Property { object, property, .. } => {
+            Expression::Property {
+                object, property, ..
+            } => {
                 let (root, mut path) = self.property_path(object)?;
 
                 path.push(property.clone());
@@ -556,11 +698,10 @@ impl<'a> Interpreter<'a> {
                 Ok((root, path))
             }
 
-            _ =>
-                Err(InterpreterError::InvalidBinaryOperation {
-                    operator: "invalid property assignment".to_string(),
-                    span: Span::default(),
-                }),
+            _ => Err(InterpreterError::InvalidBinaryOperation {
+                operator: "invalid property assignment".to_string(),
+                span: Span::default(),
+            }),
         }
     }
 
@@ -568,64 +709,366 @@ impl<'a> Interpreter<'a> {
         self.environment.borrow()
     }
 
+    fn evaluate_property_call(
+        &mut self,
+        object: &Expression,
+        property: &str,
+        arguments: &[Expression],
+        span: Span,
+    ) -> Result<Value, InterpreterError> {
+        match object {
+            Expression::Identifier { name, .. } => {
+                let mut array = match self.environment.borrow().get(name) {
+                    Some(Value::Array(values)) => values,
+
+                    _ => {
+                        return Err(InterpreterError::RuntimeError {
+                            message: "Value is not an array.".to_string(),
+                            span,
+                        });
+                    }
+                };
+
+                self.array_method(name, &mut array, property, arguments, span)
+            }
+
+            _ => {
+                let object = self.evaluate(object)?;
+
+                match object {
+                    Value::Array(_) => {
+                        todo!("temporary non-identifier support");
+                    }
+
+                    _ => Err(InterpreterError::RuntimeError {
+                        message: format!("Method '{}' is not supported on this value.", property),
+                        span,
+                    }),
+                }
+            }
+        }
+    }
+
+    fn array_method(
+        &mut self,
+        name: &str,
+        array: &mut Vec<Value>,
+        property: &str,
+        arguments: &[Expression],
+        span: Span,
+    ) -> Result<Value, InterpreterError> {
+        match property {
+            "add" => {
+                match arguments.len() {
+                    1 => {
+                        let value = self.evaluate(&arguments[0])?;
+
+                        array.push(value);
+                    }
+
+                    2 => {
+                        let index = self.evaluate(&arguments[0])?;
+
+                        let index = match index {
+                            Value::Number(n) => n as usize,
+
+                            _ => {
+                                return Err(InterpreterError::RuntimeError {
+                                    message: "Insert index must be a number.".to_string(),
+                                    span,
+                                });
+                            }
+                        };
+
+                        if index > array.len() {
+                            return Err(InterpreterError::RuntimeError {
+                                message: "Array index out of bounds.".to_string(),
+                                span,
+                            });
+                        }
+
+                        let value = self.evaluate(&arguments[1])?;
+
+                        array.insert(index, value);
+                    }
+
+                    _ => {
+                        return Err(InterpreterError::RuntimeError {
+                            message: "array.add expects 1 or 2 arguments.".to_string(),
+                            span,
+                        });
+                    }
+                }
+
+                self.environment
+                    .borrow_mut()
+                    .assign(name.to_string(), Value::Array(array.clone()))?;
+
+                Ok(Value::Null)
+            }
+
+            "remove" => {
+                match arguments.len() {
+                    0 => {
+                        if array.is_empty() {
+                            return Err(InterpreterError::RuntimeError {
+                                message: "Array is empty.".to_string(),
+                                span,
+                            });
+                        }
+
+                        array.remove(array.len() - 1);
+                    }
+
+                    1 => {
+                        let index = self.evaluate(&arguments[0])?;
+
+                        let index = match index {
+                            Value::Number(n) => n as usize,
+
+                            _ => {
+                                return Err(InterpreterError::RuntimeError {
+                                    message: "Remove index must be a number.".to_string(),
+                                    span,
+                                });
+                            }
+                        };
+
+                        if index >= array.len() {
+                            return Err(InterpreterError::RuntimeError {
+                                message: "Array index must be a number.".to_string(),
+                                span,
+                            });
+                        }
+
+                        array.remove(index);
+                    }
+
+                    _ => {
+                        return Err(InterpreterError::RuntimeError {
+                            message: "array.remove expects 0 or 1 arguments.".to_string(),
+                            span,
+                        });
+                    }
+                }
+
+                self.environment
+                    .borrow_mut()
+                    .assign(name.to_string(), Value::Array(array.clone()))?;
+
+                Ok(Value::Null)
+            }
+
+            "contains" => {
+                if arguments.len() != 1 {
+                    return Err(InterpreterError::RuntimeError {
+                        message: "array.contains expects 1 argument.".to_string(),
+                        span,
+                    });
+                }
+
+                let value = self.evaluate(&arguments[0])?;
+
+                Ok(Value::Boolean(array.contains(&value)))
+            }
+
+            "clear" => {
+                if !arguments.is_empty() {
+                    return Err(InterpreterError::RuntimeError {
+                        message: "array.clear expects 0 arguments.".to_string(),
+                        span,
+                    });
+                }
+
+                array.clear();
+
+                self.environment
+                    .borrow_mut()
+                    .assign(name.to_string(), Value::Array(array.clone()))?;
+
+                Ok(Value::Null)
+            }
+
+            "first" => {
+                if !arguments.is_empty() {
+                    return Err(InterpreterError::RuntimeError {
+                        message: "array.first expects 0 arguments.".to_string(),
+                        span,
+                    });
+                }
+
+                match array.first() {
+                    Some(value) => Ok(value.clone()),
+
+                    None => Err(InterpreterError::RuntimeError {
+                        message: "Array is empty.".to_string(),
+                        span,
+                    }),
+                }
+            }
+
+            "last" => {
+                if !arguments.is_empty() {
+                    return Err(InterpreterError::RuntimeError {
+                        message: "array.last expects 0 arguments.".to_string(),
+                        span,
+                    });
+                }
+
+                match array.last() {
+                    Some(value) => Ok(value.clone()),
+
+                    None => Err(InterpreterError::RuntimeError {
+                        message: "Array is empty.".to_string(),
+                        span,
+                    }),
+                }
+            }
+
+            "isEmpty" => {
+                if !arguments.is_empty() {
+                    return Err(InterpreterError::RuntimeError {
+                        message: "array.isEmpty expects 0 arguments.".to_string(),
+                        span,
+                    });
+                }
+
+                Ok(Value::Boolean(array.is_empty()))
+            }
+
+            "reverse" => {
+                if !arguments.is_empty() {
+                    return Err(InterpreterError::RuntimeError {
+                        message: "array.reverse expects 0 arguments.".to_string(),
+                        span,
+                    });
+                }
+
+                array.reverse();
+
+                self.environment
+                    .borrow_mut()
+                    .assign(name.to_string(), Value::Array(array.clone()))?;
+
+                Ok(Value::Null)
+            }
+
+            "sort" => {
+                if !arguments.is_empty() {
+                    return Err(InterpreterError::RuntimeError {
+                        message: "array.sort expects 0 arguments.".to_string(),
+                        span,
+                    });
+                }
+
+                if !array.iter().all(|value| matches!(value, Value::Number(_))) {
+                    return Err(InterpreterError::RuntimeError {
+                        message: "array.sort only supports numeric arrays.".to_string(),
+                        span,
+                    });
+                }
+
+                array.sort_by(|a, b| {
+                    let a = match a {
+                        Value::Number(n) => *n,
+                        _ => unreachable!(),
+                    };
+
+                    let b = match b {
+                        Value::Number(n) => *n,
+                        _ => unreachable!(),
+                    };
+
+                    a.partial_cmp(&b).unwrap()
+                });
+
+                self.environment
+                    .borrow_mut()
+                    .assign(name.to_string(), Value::Array(array.clone()))?;
+
+                Ok(Value::Null)
+            }
+
+            _ => Err(InterpreterError::RuntimeError {
+                message: format!("Unknown array method '{}'.", property),
+                span,
+            }),
+        }
+    }
+
     pub fn diagnostic<'b>(&'b self, error: &'b InterpreterError) -> Diagnostic<'b> {
         match error {
-            InterpreterError::UndefinedVariable { name, span } =>
-                Diagnostic {
-                    code: "E0001",
+            InterpreterError::UndefinedVariable { name, span } => Diagnostic {
+                code: "E0001",
 
-                    title: "Undefined Variable".to_string(),
+                title: "Undefined Variable".to_string(),
 
-                    message: format!("Cannot find variable '{}'.", name),
+                message: format!("Cannot find variable '{}'.", name),
 
-                    note: Some("The variable doesn't exist in the current scope.".to_string()),
+                note: Some("The variable doesn't exist in the current scope.".to_string()),
 
-                    help: Some("Declare the variable before using it.".to_string()),
+                help: Some("Declare the variable before using it.".to_string()),
 
-                    example: Some(format!("{} = 0\nprint({})", name, name)),
+                example: Some(format!("{} = 0\nprint({})", name, name)),
 
-                    span: *span,
+                span: *span,
 
-                    source: self._source,
-                },
+                source: self._source,
+            },
 
-            InterpreterError::CannotAssignConstant { name, span } =>
-                Diagnostic {
-                    code: "E0002",
+            InterpreterError::CannotAssignConstant { name, span } => Diagnostic {
+                code: "E0002",
 
-                    title: "Cannot Assign to Constant".to_string(),
+                title: "Cannot Assign to Constant".to_string(),
 
-                    message: format!("Cannot modify constant '{}'.", name),
+                message: format!("Cannot modify constant '{}'.", name),
 
-                    note: Some("Constants are immutable after they are declared.".to_string()),
+                note: Some("Constants are immutable after they are declared.".to_string()),
 
-                    help: Some("Use a normal variable if the value needs to change.".to_string()),
+                help: Some("Use a normal variable if the value needs to change.".to_string()),
 
-                    example: Some("value = 10\nvalue = 20".to_string()),
+                example: Some("value = 10\nvalue = 20".to_string()),
 
-                    span: *span,
+                span: *span,
 
-                    source: self._source,
-                },
+                source: self._source,
+            },
 
-            InterpreterError::InvalidBinaryOperation { operator, span } =>
-                Diagnostic {
-                    code: "E0003",
+            InterpreterError::InvalidBinaryOperation { operator, span } => Diagnostic {
+                code: "E0003",
 
-                    title: "Invalid Operation".to_string(),
+                title: "Invalid Operation".to_string(),
 
-                    message: format!("Operator '{}' cannot be applied to these values.", operator),
+                message: format!("Operator '{}' cannot be applied to these values.", operator),
 
-                    note: Some("Both operands must support the selected operator.".to_string()),
+                note: Some("Both operands must support the selected operator.".to_string()),
 
-                    help: Some("Check the value types before using this operator.".to_string()),
+                help: Some("Check the value types before using this operator.".to_string()),
 
-                    example: Some("10 + 20\ntrue and false".to_string()),
+                example: Some("10 + 20\ntrue and false".to_string()),
 
-                    span: *span,
+                span: *span,
 
-                    source: self._source,
-                },
+                source: self._source,
+            },
+
+            InterpreterError::RuntimeError { message, span } => Diagnostic {
+                code: "E0004",
+
+                title: "Runtime Error".to_string(),
+
+                message: message.clone(),
+
+                note: None,
+
+                help: None,
+
+                example: None,
+
+                span: *span,
+
+                source: self._source,
+            },
 
             InterpreterError::Return(_) => unreachable!(),
         }

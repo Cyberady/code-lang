@@ -1,8 +1,8 @@
-use lexer::{ lexer::Lexer, source::SourceFile };
+use lexer::{lexer::Lexer, source::SourceFile};
 
 use parser::parser::Parser;
 
-use crate::{ interpreter::Interpreter, value::Value };
+use crate::{interpreter::Interpreter, value::Value};
 
 #[test]
 fn executes_variable_declaration() {
@@ -22,5 +22,8 @@ fn executes_variable_declaration() {
 
     interpreter.execute(&program).unwrap();
 
-    assert_eq!(interpreter.environment().get("result"), Some(Value::Number(30.0)));
+    assert_eq!(
+        interpreter.environment().get("result"),
+        Some(Value::Number(30.0))
+    );
 }

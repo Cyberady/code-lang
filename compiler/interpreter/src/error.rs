@@ -13,6 +13,8 @@ pub enum InterpreterError {
 
     InvalidBinaryOperation { operator: String, span: Span },
 
+    RuntimeError { message: String, span: Span },
+
     Return(Value),
 }
 
@@ -29,6 +31,10 @@ impl fmt::Display for InterpreterError {
 
             InterpreterError::InvalidBinaryOperation { operator, .. } => {
                 write!(f, "Invalid use of operator '{}'", operator)
+            }
+
+            InterpreterError::RuntimeError { message, .. } => {
+                write!(f, "{message}")
             }
 
             InterpreterError::Return(_) => {

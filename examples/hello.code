@@ -1,0 +1,10 @@
+func expensive() {
+    print("called")
+    return true
+}
+
+print(false and expensive())
+print(true or expensive())
+
+print(true and expensive())
+print(false or expensive())

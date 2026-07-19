@@ -3,7 +3,7 @@
 use lexer::token::{Token, TokenKind};
 
 use crate::{
-    ast::{BinaryOperator, Expression, Program, Statement},
+    ast::{BinaryOperator, Expression, Program, Statement, UnaryOperator},
     error::ParserError,
 };
 
@@ -225,7 +225,23 @@ impl Parser {
     // }
 
     fn parse_expression(&mut self) -> Result<Expression, ParserError> {
-        self.parse_equality()
+        self.parse_or()
+    }
+
+    fn parse_unary(&mut self) -> Result<Expression, ParserError> {
+        if self.current().kind == TokenKind::Not {
+            let token = self.advance().clone();
+
+            let expression = self.parse_unary()?;
+
+            return Ok(Expression::Unary {
+                operator: UnaryOperator::Not,
+                expression: Box::new(expression),
+                span: token.span,
+            });
+        }
+
+        self.parse_call()
     }
 
     fn parse_call(&mut self) -> Result<Expression, ParserError> {
@@ -352,6 +368,48 @@ impl Parser {
         Ok(expression)
     }
 
+    fn parse_or(&mut self) -> Result<Expression, ParserError> {
+        let mut expression = self.parse_and()?;
+
+        while self.current().kind == TokenKind::Or {
+            self.advance();
+
+            let right = self.parse_and()?;
+
+            let span = expression.span().clone();
+
+            expression = Expression::Binary {
+                left: Box::new(expression),
+                operator: BinaryOperator::Or,
+                right: Box::new(right),
+                span,
+            };
+        }
+
+        Ok(expression)
+    }
+
+    fn parse_and(&mut self) -> Result<Expression, ParserError> {
+        let mut expression = self.parse_equality()?;
+
+        while self.current().kind == TokenKind::And {
+            self.advance();
+
+            let right = self.parse_equality()?;
+
+            let span = expression.span().clone();
+
+            expression = Expression::Binary {
+                left: Box::new(expression),
+                operator: BinaryOperator::And,
+                right: Box::new(right),
+                span,
+            };
+        }
+
+        Ok(expression)
+    }
+
     fn parse_equality(&mut self) -> Result<Expression, ParserError> {
         let mut expression = self.parse_comparison()?;
 
@@ -382,7 +440,7 @@ impl Parser {
     }
 
     fn parse_factor(&mut self) -> Result<Expression, ParserError> {
-        let mut expression = self.parse_call()?;
+        let mut expression = self.parse_unary()?;
 
         loop {
             let operator = match self.current().kind {
@@ -396,7 +454,7 @@ impl Parser {
 
             self.advance();
 
-            let right = self.parse_call()?;
+            let right = self.parse_unary()?;
 
             let span = expression.span().clone();
 
