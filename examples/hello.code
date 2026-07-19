@@ -1,13 +1,16 @@
 i = 0
 
 while true {
-    if i == 2 {
-        break
+
+    i = i + 1
+
+    if i < 3 {
+        continue
     }
 
     print(i)
 
-    i = i + 1
+    if i == 5 {
+        break
+    }
 }
-
-print("done")

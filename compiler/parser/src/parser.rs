@@ -46,6 +46,8 @@ impl Parser {
 
             TokenKind::Break => self.parse_break_statement(),
 
+            TokenKind::Continue => self.parse_continue_statement(),
+
             TokenKind::Identifier => {
                 let expression = self.parse_expression()?;
 
@@ -227,6 +229,14 @@ impl Parser {
         self.advance(); // consume break
 
         Ok(Statement::Break { span })
+    }
+
+    fn parse_continue_statement(&mut self) -> Result<Statement, ParserError> {
+        let span = self.current().span;
+
+        self.advance(); // consume continue
+
+        Ok(Statement::Continue { span })
     }
 
     fn parse_return_statement(&mut self) -> Result<Statement, ParserError> {

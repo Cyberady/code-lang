@@ -18,6 +18,8 @@ pub enum InterpreterError {
     Return(Value),
 
     Break,
+
+    Continue,
 }
 
 impl fmt::Display for InterpreterError {
@@ -45,6 +47,10 @@ impl fmt::Display for InterpreterError {
 
             InterpreterError::Break => {
                 write!(f, "Internal interpreter break")
+            }
+
+            InterpreterError::Continue => {
+                write!(f, "Internal interpreter continue")
             }
         }
     }

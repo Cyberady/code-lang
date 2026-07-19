@@ -196,9 +196,14 @@ impl<'a> Interpreter<'a> {
                                 match self.execute_statement(statement) {
                                     Ok(_) => {}
 
+                                    Err(InterpreterError::Continue) => {
+                                        continue 'while_loop;
+                                    }
+
                                     Err(InterpreterError::Break) => {
                                         break 'while_loop;
                                     }
+
                                     Err(error) => {
                                         return Err(error);
                                     }
@@ -245,6 +250,8 @@ impl<'a> Interpreter<'a> {
             }
 
             Statement::Break { .. } => Err(InterpreterError::Break),
+
+            Statement::Continue { .. } => Err(InterpreterError::Continue),
 
             Statement::Return { value, .. } => {
                 let value = self.evaluate(value)?;
@@ -1111,6 +1118,8 @@ impl<'a> Interpreter<'a> {
             InterpreterError::Return(_) => unreachable!(),
 
             InterpreterError::Break => unreachable!(),
+
+            InterpreterError::Continue => unreachable!(),
         }
     }
 }
