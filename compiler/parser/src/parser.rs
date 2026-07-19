@@ -117,19 +117,24 @@ impl Parser {
         self.consume(TokenKind::RightBrace)?;
 
         let else_branch = if self.current().kind == TokenKind::Else {
-            self.advance();
+            self.advance(); // consume else
 
-            self.consume(TokenKind::LeftBrace)?;
+            if self.current().kind == TokenKind::If {
+                // else if ...
+                Some(vec![self.parse_if_statement()?])
+            } else {
+                self.consume(TokenKind::LeftBrace)?;
 
-            let mut statements = Vec::new();
+                let mut statements = Vec::new();
 
-            while self.current().kind != TokenKind::RightBrace {
-                statements.push(self.parse_statement()?);
+                while self.current().kind != TokenKind::RightBrace {
+                    statements.push(self.parse_statement()?);
+                }
+
+                self.consume(TokenKind::RightBrace)?;
+
+                Some(statements)
             }
-
-            self.consume(TokenKind::RightBrace)?;
-
-            Some(statements)
         } else {
             None
         };
