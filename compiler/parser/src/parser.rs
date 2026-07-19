@@ -34,13 +34,15 @@ impl Parser {
 
     fn parse_statement(&mut self) -> Result<Statement, ParserError> {
         match self.current().kind {
-            TokenKind::Const => self.parse_variable_declaration(),
+            TokenKind::Const => self.parse_constant_declaration(),
 
             TokenKind::Func => self.parse_function_declaration(),
 
             TokenKind::Return => self.parse_return_statement(),
 
             TokenKind::If => self.parse_if_statement(),
+
+            TokenKind::While => self.parse_while_statement(),
 
             TokenKind::Identifier => {
                 let expression = self.parse_expression()?;
@@ -140,6 +142,30 @@ impl Parser {
         })
     }
 
+    fn parse_while_statement(&mut self) -> Result<Statement, ParserError> {
+        let span = self.current().span.clone();
+
+        self.advance(); // consume while
+
+        let condition = self.parse_expression()?;
+
+        self.consume(TokenKind::LeftBrace)?;
+
+        let mut body = Vec::new();
+
+        while self.current().kind != TokenKind::RightBrace {
+            body.push(self.parse_statement()?);
+        }
+
+        self.consume(TokenKind::RightBrace)?;
+
+        Ok(Statement::While {
+            condition,
+            body,
+            span,
+        })
+    }
+
     fn parse_function_declaration(&mut self) -> Result<Statement, ParserError> {
         let span = self.current().span.clone();
         // consume 'func'
@@ -198,7 +224,7 @@ impl Parser {
         Ok(Statement::Return { value, span })
     }
 
-    fn parse_variable_declaration(&mut self) -> Result<Statement, ParserError> {
+    fn parse_constant_declaration(&mut self) -> Result<Statement, ParserError> {
         let span = self.current().span.clone();
 
         self.advance(); // consume const
@@ -209,7 +235,7 @@ impl Parser {
 
         let value = self.parse_expression()?;
 
-        Ok(Statement::VariableDeclaration { name, value, span })
+        Ok(Statement::ConstantDeclaration { name, value, span })
     }
 
     // fn parse_assignment(&mut self) -> Result<Statement, ParserError> {

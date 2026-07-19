@@ -53,11 +53,7 @@ impl<'a> Interpreter<'a> {
                 Ok(None)
             }
 
-            Statement::VariableDeclaration {
-                name,
-                value,
-                span: _,
-            } => {
+            Statement::ConstantDeclaration { name, value, .. } => {
                 let value = self.evaluate(value)?;
 
                 self.environment
@@ -180,6 +176,37 @@ impl<'a> Interpreter<'a> {
                             operator: "?".to_string(),
                             span: *span,
                         });
+                    }
+                }
+
+                Ok(None)
+            }
+
+            Statement::While {
+                condition,
+                body,
+                span,
+            } => {
+                loop {
+                    let value = self.evaluate(condition)?;
+
+                    match value {
+                        Value::Boolean(true) => {
+                            for statement in body {
+                                self.execute_statement(statement)?;
+                            }
+                        }
+
+                        Value::Boolean(false) => {
+                            break;
+                        }
+
+                        _ => {
+                            return Err(InterpreterError::RuntimeError {
+                                message: "While condition must be a boolean.".to_string(),
+                                span: *span,
+                            });
+                        }
                     }
                 }
 

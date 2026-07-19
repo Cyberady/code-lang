@@ -9,7 +9,7 @@ pub struct Program {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Statement {
-    VariableDeclaration {
+    ConstantDeclaration {
         name: String,
         value: Expression,
         span: Span,
@@ -51,6 +51,12 @@ pub enum Statement {
         condition: Expression,
         then_branch: Vec<Statement>,
         else_branch: Option<Vec<Statement>>,
+        span: Span,
+    },
+
+    While {
+        condition: Expression,
+        body: Vec<Statement>,
         span: Span,
     },
 
