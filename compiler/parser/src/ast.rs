@@ -60,6 +60,10 @@ pub enum Statement {
         span: Span,
     },
 
+    Break {
+        span: Span,
+    },
+
     Expression(Expression),
 }
 #[derive(Debug, Clone, PartialEq)]

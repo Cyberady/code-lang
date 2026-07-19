@@ -1,11 +1,13 @@
-marks = 40
+i = 0
 
-if marks >= 90 {
-    print("A")
-} else if marks >= 80 {
-    print("B")
-} else if marks >= 70 {
-    print("C")
-} else {
-    print("Fail")
+while true {
+    if i == 2 {
+        break
+    }
+
+    print(i)
+
+    i = i + 1
 }
+
+print("done")

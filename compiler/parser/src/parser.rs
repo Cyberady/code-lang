@@ -44,6 +44,8 @@ impl Parser {
 
             TokenKind::While => self.parse_while_statement(),
 
+            TokenKind::Break => self.parse_break_statement(),
+
             TokenKind::Identifier => {
                 let expression = self.parse_expression()?;
 
@@ -217,6 +219,14 @@ impl Parser {
             body,
             span,
         })
+    }
+
+    fn parse_break_statement(&mut self) -> Result<Statement, ParserError> {
+        let span = self.current().span.clone();
+
+        self.advance(); // consume break
+
+        Ok(Statement::Break { span })
     }
 
     fn parse_return_statement(&mut self) -> Result<Statement, ParserError> {

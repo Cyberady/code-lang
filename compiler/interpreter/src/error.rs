@@ -16,6 +16,8 @@ pub enum InterpreterError {
     RuntimeError { message: String, span: Span },
 
     Return(Value),
+
+    Break,
 }
 
 impl fmt::Display for InterpreterError {
@@ -39,6 +41,10 @@ impl fmt::Display for InterpreterError {
 
             InterpreterError::Return(_) => {
                 write!(f, "Internal interpreter return")
+            }
+
+            InterpreterError::Break => {
+                write!(f, "Internal interpreter break")
             }
         }
     }

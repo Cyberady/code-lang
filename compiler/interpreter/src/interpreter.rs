@@ -187,13 +187,22 @@ impl<'a> Interpreter<'a> {
                 body,
                 span,
             } => {
-                loop {
+                'while_loop: loop {
                     let value = self.evaluate(condition)?;
 
                     match value {
                         Value::Boolean(true) => {
                             for statement in body {
-                                self.execute_statement(statement)?;
+                                match self.execute_statement(statement) {
+                                    Ok(_) => {}
+
+                                    Err(InterpreterError::Break) => {
+                                        break 'while_loop;
+                                    }
+                                    Err(error) => {
+                                        return Err(error);
+                                    }
+                                }
                             }
                         }
 
@@ -234,6 +243,8 @@ impl<'a> Interpreter<'a> {
                 let value = self.evaluate(expression)?;
                 Ok(Some(value))
             }
+
+            Statement::Break { .. } => Err(InterpreterError::Break),
 
             Statement::Return { value, .. } => {
                 let value = self.evaluate(value)?;
@@ -1098,6 +1109,8 @@ impl<'a> Interpreter<'a> {
             },
 
             InterpreterError::Return(_) => unreachable!(),
+
+            InterpreterError::Break => unreachable!(),
         }
     }
 }
