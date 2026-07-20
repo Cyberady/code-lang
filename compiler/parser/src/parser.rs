@@ -44,6 +44,8 @@ impl Parser {
 
             TokenKind::While => self.parse_while_statement(),
 
+            TokenKind::For => self.parse_for_statement(),
+
             TokenKind::Break => self.parse_break_statement(),
 
             TokenKind::Continue => self.parse_continue_statement(),
@@ -175,6 +177,35 @@ impl Parser {
         })
     }
 
+    fn parse_for_statement(&mut self) -> Result<Statement, ParserError> {
+        let span = self.current().span.clone();
+
+        self.advance(); // consume for
+
+        let variable = self.consume(TokenKind::Identifier)?.lexeme.clone();
+
+        self.consume(TokenKind::In)?;
+
+        let iterable = self.parse_expression()?;
+
+        self.consume(TokenKind::LeftBrace)?;
+
+        let mut body = Vec::new();
+
+        while self.current().kind != TokenKind::RightBrace {
+            body.push(self.parse_statement()?);
+        }
+
+        self.consume(TokenKind::RightBrace)?;
+
+        Ok(Statement::For {
+            variable,
+            iterable,
+            body,
+            span,
+        })
+    }
+
     fn parse_function_declaration(&mut self) -> Result<Statement, ParserError> {
         let span = self.current().span.clone();
         // consume 'func'
@@ -280,13 +311,20 @@ impl Parser {
     }
 
     fn parse_unary(&mut self) -> Result<Expression, ParserError> {
-        if self.current().kind == TokenKind::Not {
+        let operator = match self.current().kind {
+            TokenKind::Plus => Some(UnaryOperator::Plus),
+            TokenKind::Minus => Some(UnaryOperator::Minus),
+            TokenKind::Not => Some(UnaryOperator::Not),
+            _ => None,
+        };
+
+        if let Some(operator) = operator {
             let token = self.advance().clone();
 
             let expression = self.parse_unary()?;
 
             return Ok(Expression::Unary {
-                operator: UnaryOperator::Not,
+                operator,
                 expression: Box::new(expression),
                 span: token.span,
             });
@@ -294,7 +332,6 @@ impl Parser {
 
         self.parse_call()
     }
-
     fn parse_call(&mut self) -> Result<Expression, ParserError> {
         let mut expression = self.parse_primary()?;
 

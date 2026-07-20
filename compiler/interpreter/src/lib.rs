@@ -1,5 +1,6 @@
 //! Interpreter for the Code programming language.
 
+pub mod builtins;
 pub mod diagnostic;
 pub mod environment;
 pub mod error;

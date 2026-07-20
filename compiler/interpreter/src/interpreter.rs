@@ -12,6 +12,8 @@ use lexer::span::Span;
 
 use std::{cell::RefCell, rc::Rc};
 
+use crate::builtins::{builtin_print, builtin_range};
+
 pub struct Interpreter<'a> {
     environment: Rc<RefCell<Environment>>,
     _source: &'a SourceFile,
@@ -227,6 +229,50 @@ impl<'a> Interpreter<'a> {
                 Ok(None)
             }
 
+            Statement::For {
+                variable,
+                iterable,
+                body,
+                span,
+            } => {
+                let iterable = self.evaluate(iterable)?;
+
+                match iterable {
+                    Value::Array(values) => {
+                        'for_loop: for value in values {
+                            self.environment
+                                .borrow_mut()
+                                .assign(variable.clone(), value)?;
+
+                            for statement in body {
+                                match self.execute_statement(statement) {
+                                    Ok(_) => {}
+
+                                    Err(InterpreterError::Continue) => {
+                                        continue 'for_loop;
+                                    }
+
+                                    Err(InterpreterError::Break) => {
+                                        break 'for_loop;
+                                    }
+
+                                    Err(error) => {
+                                        return Err(error);
+                                    }
+                                }
+                            }
+                        }
+
+                        Ok(None)
+                    }
+
+                    _ => Err(InterpreterError::RuntimeError {
+                        message: "For loop expects an array.".to_string(),
+                        span: *span,
+                    }),
+                }
+            }
+
             Statement::FunctionDeclaration {
                 name,
                 parameters,
@@ -261,7 +307,7 @@ impl<'a> Interpreter<'a> {
         }
     }
 
-    fn evaluate(&mut self, expression: &Expression) -> Result<Value, InterpreterError> {
+    pub(super) fn evaluate(&mut self, expression: &Expression) -> Result<Value, InterpreterError> {
         match expression {
             Expression::NumberLiteral { value, .. } => Ok(Value::Number(value.parse().unwrap())),
 
@@ -365,13 +411,24 @@ impl<'a> Interpreter<'a> {
                 let value = self.evaluate(expression)?;
 
                 match (operator, value) {
+                    (UnaryOperator::Plus, Value::Number(value)) => Ok(Value::Number(value)),
+
+                    (UnaryOperator::Minus, Value::Number(value)) => Ok(Value::Number(-value)),
+
                     (UnaryOperator::Not, Value::Boolean(value)) => Ok(Value::Boolean(!value)),
 
-                    _ => Err(InterpreterError::RuntimeError {
-                        message: format!(
-                            "Operator '{}' requires a boolean operand.",
-                            operator.as_str()
-                        ),
+                    (UnaryOperator::Plus, _) | (UnaryOperator::Minus, _) => {
+                        Err(InterpreterError::RuntimeError {
+                            message: format!(
+                                "Operator '{}' requires a number operand.",
+                                operator.as_str()
+                            ),
+                            span: *span,
+                        })
+                    }
+
+                    (UnaryOperator::Not, _) => Err(InterpreterError::RuntimeError {
+                        message: "Operator 'not' requires a boolean operand.".to_string(),
                         span: *span,
                     }),
                 }
@@ -465,7 +522,13 @@ impl<'a> Interpreter<'a> {
         arguments: &[Expression],
     ) -> Result<Value, InterpreterError> {
         match callee {
-            Expression::Identifier { name, .. } if name == "print" => self.builtin_print(arguments),
+            Expression::Identifier { name, .. } if name == "print" => {
+                builtin_print(self, arguments)
+            }
+
+            Expression::Identifier { name, .. } if name == "range" => {
+                builtin_range(self, arguments)
+            }
 
             Expression::Property {
                 object,
@@ -541,73 +604,6 @@ impl<'a> Interpreter<'a> {
                 span: *callee.span(),
             }),
         }
-    }
-
-    fn builtin_print(&mut self, arguments: &[Expression]) -> Result<Value, InterpreterError> {
-        if arguments.len() != 1 {
-            return Err(InterpreterError::InvalidBinaryOperation {
-                operator: "?".to_string(),
-                span: Span::default(),
-            });
-        }
-
-        let value = self.evaluate(&arguments[0])?;
-
-        match &value {
-            Value::Number(number) => println!("{number}"),
-
-            Value::String(text) => println!("{text}"),
-
-            Value::Boolean(boolean) => println!("{boolean}"),
-
-            Value::Null => println!("null"),
-
-            Value::Array(values) => {
-                print!("[");
-
-                for (index, value) in values.iter().enumerate() {
-                    if index > 0 {
-                        print!(", ");
-                    }
-
-                    match value {
-                        Value::Number(n) => print!("{n}"),
-                        Value::String(s) => print!("{s}"),
-                        Value::Boolean(b) => print!("{b}"),
-                        Value::Null => print!("null"),
-                        Value::Array(_) => print!("[...]"),
-                        Value::Object(_) => print!("{{...}}"),
-                    }
-                }
-
-                println!("]");
-            }
-
-            Value::Object(properties) => {
-                print!("{{");
-
-                for (index, (key, value)) in properties.iter().enumerate() {
-                    if index > 0 {
-                        print!(", ");
-                    }
-
-                    print!("{key}: ");
-
-                    match value {
-                        Value::Number(n) => print!("{n}"),
-                        Value::String(s) => print!("{s}"),
-                        Value::Boolean(b) => print!("{b}"),
-                        Value::Null => print!("null"),
-                        Value::Array(_) => print!("[...]"),
-                        Value::Object(_) => print!("{{...}}"),
-                    }
-                }
-
-                println!("}}");
-            }
-        }
-
-        Ok(Value::Null)
     }
 
     fn evaluate_binary(

@@ -1,16 +1,6 @@
-i = 0
-
-while true {
-
-    i = i + 1
-
-    if i < 3 {
-        continue
-    }
-
-    print(i)
-
-    if i == 5 {
-        break
+for i in range(2) {
+    for j in range(2) {
+        print(i)
+        print(j)
     }
 }

@@ -60,6 +60,13 @@ pub enum Statement {
         span: Span,
     },
 
+    For {
+        variable: String,
+        iterable: Expression,
+        body: Vec<Statement>,
+        span: Span,
+    },
+
     Break {
         span: Span,
     },
@@ -191,12 +198,16 @@ pub enum BinaryOperator {
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum UnaryOperator {
+    Plus,
+    Minus,
     Not,
 }
 
 impl UnaryOperator {
     pub fn as_str(&self) -> &'static str {
         match self {
+            UnaryOperator::Plus => "+",
+            UnaryOperator::Minus => "-",
             UnaryOperator::Not => "not",
         }
     }
