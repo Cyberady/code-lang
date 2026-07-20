@@ -51,6 +51,13 @@ impl<'a> Lexer<'a> {
                 continue;
             }
 
+            // Comments
+            if ch == '/' {
+                if self.skip_comment()? {
+                    continue;
+                }
+            }
+
             // Operator
             if let Some(token) = self.lex_operator()? {
                 tokens.push(token);
@@ -199,6 +206,68 @@ impl<'a> Lexer<'a> {
             value,
             Span::new(start, self.cursor.position()),
         ))
+    }
+
+    fn skip_comment(&mut self) -> Result<bool, LexerError> {
+        if self.cursor.current() != Some('/') {
+            return Ok(false);
+        }
+
+        match self.cursor.peek() {
+            // ----------------------------
+            // Single-line comment
+            // ----------------------------
+            Some('/') => {
+                // Skip both '/'
+                self.cursor.advance();
+                self.cursor.advance();
+
+                while let Some(ch) = self.cursor.current() {
+                    if ch == '\n' {
+                        break;
+                    }
+
+                    self.cursor.advance();
+                }
+
+                Ok(true)
+            }
+
+            // ----------------------------
+            // Multi-line comment
+            // ----------------------------
+            Some('*') => {
+                // Skip '/' and '*'
+                self.cursor.advance();
+                self.cursor.advance();
+
+                loop {
+                    match self.cursor.current() {
+                        Some('*') if self.cursor.peek() == Some('/') => {
+                            // Skip '*' and '/'
+                            self.cursor.advance();
+                            self.cursor.advance();
+                            break;
+                        }
+
+                        Some(_) => {
+                            self.cursor.advance();
+                        }
+
+                        None => {
+                            return Err(LexerError::UnterminatedComment {
+                                span: Span::new(self.cursor.position(), self.cursor.position()),
+                            });
+                        }
+                    }
+                }
+
+                Ok(true)
+            }
+
+            // Not a comment
+            _ => Ok(false),
+        }
     }
 
     /// Lexes single-character operators.

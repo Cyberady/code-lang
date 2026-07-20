@@ -13,6 +13,9 @@ pub enum LexerError {
     /// A string literal was not properly closed.
     UnterminatedString { span: Span },
 
+    /// A block comment was not properly closed.
+    UnterminatedComment { span: Span },
+
     /// An invalid numeric literal was encountered.
     InvalidNumber { span: Span },
 }
@@ -26,6 +29,10 @@ impl std::fmt::Display for LexerError {
 
             LexerError::UnterminatedString { .. } => {
                 write!(f, "Unterminated string literal.")
+            }
+
+            LexerError::UnterminatedComment { .. } => {
+                write!(f, "Unterminated block comment.")
             }
 
             LexerError::InvalidNumber { .. } => {
