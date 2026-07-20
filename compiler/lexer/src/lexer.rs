@@ -40,11 +40,10 @@ impl<'a> Lexer<'a> {
                 continue;
             }
 
-            if ch == '"' {
+            if ch == '"' || ch == '\'' {
                 tokens.push(self.lex_string()?);
                 continue;
             }
-
             // Number
             if ch.is_ascii_digit() {
                 tokens.push(self.lex_number()?);
@@ -177,13 +176,15 @@ impl<'a> Lexer<'a> {
     fn lex_string(&mut self) -> Result<Token, LexerError> {
         let start = self.cursor.position();
 
-        // Skip opening quote
+        let quote = self.cursor.current().unwrap();
+
+        // NOW skip the opening quote
         self.cursor.advance();
 
         let mut value = String::new();
 
         while let Some(ch) = self.cursor.current() {
-            if ch == '"' {
+            if ch == quote {
                 break;
             }
 
