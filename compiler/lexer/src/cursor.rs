@@ -42,6 +42,11 @@ impl<'a> Cursor<'a> {
         chars.next()
     }
 
+    /// Returns true if the remaining source starts with the given text.
+    pub fn starts_with(&self, text: &str) -> bool {
+        self.source.text[self.position..].starts_with(text)
+    }
+
     /// Advances the cursor by one character.
     pub fn advance(&mut self) {
         if let Some(ch) = self.current() {
@@ -94,4 +99,22 @@ mod tests {
 
         assert!(cursor.is_eof());
     }
+}
+
+#[test]
+fn starts_with_matches_text() {
+    let source = SourceFile::new("main.code".to_string(), "\"\"\"hello".to_string());
+
+    let cursor = Cursor::new(&source);
+
+    assert!(cursor.starts_with("\"\"\""));
+}
+
+#[test]
+fn starts_with_returns_false_for_non_match() {
+    let source = SourceFile::new("main.code".to_string(), "hello".to_string());
+
+    let cursor = Cursor::new(&source);
+
+    assert!(!cursor.starts_with("\"\"\""));
 }

@@ -1,9 +1,9 @@
 //! Parser implementation for the Code programming language.
 
-use lexer::token::{Token, TokenKind};
+use lexer::token::{ Token, TokenKind };
 
 use crate::{
-    ast::{BinaryOperator, Expression, Program, Statement, UnaryOperator},
+    ast::{ BinaryOperator, Expression, Program, Statement, UnaryOperator },
     error::ParserError,
 };
 
@@ -63,11 +63,7 @@ impl Parser {
                             return Ok(Statement::Assignment { name, value, span });
                         }
 
-                        Expression::Index {
-                            object,
-                            index,
-                            span,
-                        } => {
+                        Expression::Index { object, index, span } => {
                             return Ok(Statement::IndexAssignment {
                                 object: *object,
                                 index: *index,
@@ -76,11 +72,7 @@ impl Parser {
                             });
                         }
 
-                        Expression::Property {
-                            object,
-                            property,
-                            span,
-                        } => {
+                        Expression::Property { object, property, span } => {
                             return Ok(Statement::PropertyAssignment {
                                 object: *object,
                                 property,
@@ -308,6 +300,17 @@ impl Parser {
 
     fn parse_expression(&mut self) -> Result<Expression, ParserError> {
         self.parse_or()
+    }
+
+    /// Parses a single expression.
+    pub fn parse_expression_only(&mut self) -> Result<Expression, ParserError> {
+        let expression = self.parse_expression()?;
+
+        if !self.is_at_end() {
+            return Err(ParserError::UnexpectedToken);
+        }
+
+        Ok(expression)
     }
 
     fn parse_unary(&mut self) -> Result<Expression, ParserError> {

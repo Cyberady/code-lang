@@ -1,1 +1,3 @@
-city = 'Mumbai
+name = "Aditya"
+
+print("Hello {name}!")

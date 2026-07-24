@@ -1,15 +1,9 @@
-use lexer::{lexer::Lexer, source::SourceFile};
+use lexer::{ lexer::Lexer, source::SourceFile };
 
-use crate::{
-    ast::{BinaryOperator, Expression, Statement},
-    parser::Parser,
-};
+use crate::{ ast::{ BinaryOperator, Expression, Statement }, parser::Parser };
 #[test]
 fn parses_binary_expression() {
-    let source = SourceFile::new(
-        "main.code".to_string(),
-        "const result = 10 + 20".to_string(),
-    );
+    let source = SourceFile::new("main.code".to_string(), "const result = 10 + 20".to_string());
 
     let mut lexer = Lexer::new(&source);
 
@@ -20,16 +14,11 @@ fn parses_binary_expression() {
     let program = parser.parse().unwrap();
 
     match &program.statements[0] {
-        Statement::VariableDeclaration { name, value, .. } => {
+        Statement::ConstantDeclaration { name, value, .. } => {
             assert_eq!(name, "result");
 
             match value {
-                Expression::Binary {
-                    left,
-                    operator,
-                    right,
-                    ..
-                } => {
+                Expression::Binary { left, operator, right, .. } => {
                     assert_eq!(*operator, BinaryOperator::Plus);
 
                     match &**left {
@@ -53,7 +42,7 @@ fn parses_binary_expression() {
         }
 
         Statement::If { .. } => {
-            panic!("Expected variable declaration");
+            panic!("Expected constant declaration");
         }
 
         Statement::FunctionDeclaration { .. } => {
@@ -65,9 +54,8 @@ fn parses_binary_expression() {
         }
 
         Statement::Expression(_) => {
-            panic!("Expected variable declaration");
+            panic!("Expected constant declaration");
         }
-
         Statement::Assignment { .. } => {
             panic!("Did not expect assignment");
         }
@@ -78,6 +66,22 @@ fn parses_binary_expression() {
 
         Statement::PropertyAssignment { .. } => {
             panic!("Did not expect property assignment");
+        }
+
+        Statement::While { .. } => {
+            panic!("Unexpected while statement");
+        }
+
+        Statement::For { .. } => {
+            panic!("Unexpected for statement");
+        }
+
+        Statement::Break { .. } => {
+            panic!("Unexpected break");
+        }
+
+        Statement::Continue { .. } => {
+            panic!("Unexpected continue");
         }
     }
 }

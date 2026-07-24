@@ -5,7 +5,7 @@ use crate::{
     error::LexerError,
     source::SourceFile,
     span::Span,
-    token::{Token, TokenKind},
+    token::{ Token, TokenKind },
 };
 
 /// Lexical analyzer for the Code programming language.
@@ -37,6 +37,11 @@ impl<'a> Lexer<'a> {
             // Identifier / Keyword
             if Self::is_identifier_start(ch) {
                 tokens.push(self.lex_identifier());
+                continue;
+            }
+
+            if self.cursor.starts_with("\"\"\"") {
+                tokens.push(self.lex_multiline_string()?);
                 continue;
             }
 
@@ -72,19 +77,18 @@ impl<'a> Lexer<'a> {
             // Unknown character
             return Err(LexerError::UnexpectedCharacter {
                 character: ch,
-                span: Span::new(
-                    self.cursor.position(),
-                    self.cursor.position() + ch.len_utf8(),
-                ),
+                span: Span::new(self.cursor.position(), self.cursor.position() + ch.len_utf8()),
             });
         }
 
         // End of file
-        tokens.push(Token::new(
-            TokenKind::EOF,
-            String::new(),
-            Span::new(self.cursor.position(), self.cursor.position()),
-        ));
+        tokens.push(
+            Token::new(
+                TokenKind::EOF,
+                String::new(),
+                Span::new(self.cursor.position(), self.cursor.position())
+            )
+        );
 
         Ok(tokens)
     }
@@ -166,11 +170,7 @@ impl<'a> Lexer<'a> {
             self.cursor.advance();
         }
 
-        Ok(Token::new(
-            TokenKind::Number,
-            lexeme,
-            Span::new(start, self.cursor.position()),
-        ))
+        Ok(Token::new(TokenKind::Number, lexeme, Span::new(start, self.cursor.position())))
     }
 
     fn lex_string(&mut self) -> Result<Token, LexerError> {
@@ -202,11 +202,39 @@ impl<'a> Lexer<'a> {
         // Skip closing quote
         self.cursor.advance();
 
-        Ok(Token::new(
-            TokenKind::String,
-            value,
-            Span::new(start, self.cursor.position()),
-        ))
+        Ok(Token::new(TokenKind::String, value, Span::new(start, self.cursor.position())))
+    }
+
+    fn lex_multiline_string(&mut self) -> Result<Token, LexerError> {
+        let start = self.cursor.position();
+
+        // Skip the opening """
+        self.cursor.advance();
+        self.cursor.advance();
+        self.cursor.advance();
+
+        let mut value = String::new();
+
+        while !self.cursor.is_eof() {
+            if self.cursor.starts_with("\"\"\"") {
+                break;
+            }
+
+            value.push(self.cursor.current().unwrap());
+            self.cursor.advance();
+        }
+
+        // Reached EOF before closing """
+        if self.cursor.is_eof() {
+            return Err(LexerError::UnterminatedString {
+                span: Span::new(start, self.cursor.position()),
+            });
+        }
+        // Skip the closing """
+        self.cursor.advance();
+        self.cursor.advance();
+        self.cursor.advance();
+        Ok(Token::new(TokenKind::String, value, Span::new(start, self.cursor.position())))
     }
 
     fn skip_comment(&mut self) -> Result<bool, LexerError> {
@@ -289,13 +317,13 @@ impl<'a> Lexer<'a> {
                     Token::new(
                         TokenKind::EqualEqual,
                         "==".to_string(),
-                        Span::new(start, self.cursor.position()),
+                        Span::new(start, self.cursor.position())
                     )
                 } else {
                     Token::new(
                         TokenKind::Equal,
                         "=".to_string(),
-                        Span::new(start, self.cursor.position()),
+                        Span::new(start, self.cursor.position())
                     )
                 }
             }
@@ -309,13 +337,13 @@ impl<'a> Lexer<'a> {
                     Token::new(
                         TokenKind::BangEqual,
                         "!=".to_string(),
-                        Span::new(start, self.cursor.position()),
+                        Span::new(start, self.cursor.position())
                     )
                 } else {
                     Token::new(
                         TokenKind::Bang,
                         "!".to_string(),
-                        Span::new(start, self.cursor.position()),
+                        Span::new(start, self.cursor.position())
                     )
                 }
             }
@@ -329,13 +357,13 @@ impl<'a> Lexer<'a> {
                     Token::new(
                         TokenKind::LessEqual,
                         "<=".to_string(),
-                        Span::new(start, self.cursor.position()),
+                        Span::new(start, self.cursor.position())
                     )
                 } else {
                     Token::new(
                         TokenKind::Less,
                         "<".to_string(),
-                        Span::new(start, self.cursor.position()),
+                        Span::new(start, self.cursor.position())
                     )
                 }
             }
@@ -349,13 +377,13 @@ impl<'a> Lexer<'a> {
                     Token::new(
                         TokenKind::GreaterEqual,
                         ">=".to_string(),
-                        Span::new(start, self.cursor.position()),
+                        Span::new(start, self.cursor.position())
                     )
                 } else {
                     Token::new(
                         TokenKind::Greater,
                         ">".to_string(),
-                        Span::new(start, self.cursor.position()),
+                        Span::new(start, self.cursor.position())
                     )
                 }
             }
@@ -366,7 +394,7 @@ impl<'a> Lexer<'a> {
                 Token::new(
                     TokenKind::Plus,
                     "+".to_string(),
-                    Span::new(start, self.cursor.position()),
+                    Span::new(start, self.cursor.position())
                 )
             }
 
@@ -376,7 +404,7 @@ impl<'a> Lexer<'a> {
                 Token::new(
                     TokenKind::Minus,
                     "-".to_string(),
-                    Span::new(start, self.cursor.position()),
+                    Span::new(start, self.cursor.position())
                 )
             }
 
@@ -386,7 +414,7 @@ impl<'a> Lexer<'a> {
                 Token::new(
                     TokenKind::Star,
                     "*".to_string(),
-                    Span::new(start, self.cursor.position()),
+                    Span::new(start, self.cursor.position())
                 )
             }
 
@@ -396,7 +424,7 @@ impl<'a> Lexer<'a> {
                 Token::new(
                     TokenKind::Slash,
                     "/".to_string(),
-                    Span::new(start, self.cursor.position()),
+                    Span::new(start, self.cursor.position())
                 )
             }
 
@@ -406,7 +434,7 @@ impl<'a> Lexer<'a> {
                 Token::new(
                     TokenKind::Percent,
                     "%".to_string(),
-                    Span::new(start, self.cursor.position()),
+                    Span::new(start, self.cursor.position())
                 )
             }
 
@@ -445,10 +473,6 @@ impl<'a> Lexer<'a> {
 
         self.cursor.advance();
 
-        Some(Token::new(
-            kind,
-            lexeme.to_string(),
-            Span::new(start, self.cursor.position()),
-        ))
+        Some(Token::new(kind, lexeme.to_string(), Span::new(start, self.cursor.position())))
     }
 }
