@@ -2,7 +2,7 @@
 
 use parser::ast::{ BinaryOperator, Expression, Program, Statement, UnaryOperator };
 
-use crate::{ environment::Environment, error::InterpreterError, value::Value };
+use crate::{ environment::Environment, error::InterpreterError, methods, value::Value };
 
 use lexer::source::SourceFile;
 
@@ -19,7 +19,7 @@ use lexer::lexer::Lexer;
 use parser::parser::Parser;
 
 pub struct Interpreter<'a> {
-    environment: Rc<RefCell<Environment>>,
+    pub(crate) environment: Rc<RefCell<Environment>>,
     _source: &'a SourceFile,
 }
 
@@ -776,26 +776,47 @@ impl<'a> Interpreter<'a> {
     ) -> Result<Value, InterpreterError> {
         match object {
             Expression::Identifier { name, .. } => {
-                let mut array = match self.environment.borrow().get(name) {
-                    Some(Value::Array(values)) => values,
+                let value = self.environment
+                    .borrow()
+                    .get(name)
+                    .ok_or(InterpreterError::UndefinedVariable {
+                        name: name.clone(),
+                        span,
+                    })?;
 
-                    _ => {
-                        return Err(InterpreterError::RuntimeError {
-                            message: "Value is not an array.".to_string(),
-                            span,
-                        });
+                match value {
+                    Value::Array(mut array) => {
+                        methods::array::call(self, name, &mut array, property, arguments, span)
                     }
-                };
 
-                self.array_method(name, &mut array, property, arguments, span)
+                    Value::String(text) => {
+                        methods::string::call(self, text, property, arguments, span)
+                    }
+
+                    Value::Object(_) => { todo!("object methods") }
+
+                    _ =>
+                        Err(InterpreterError::RuntimeError {
+                            message: format!("Method '{}' is not supported on this value.", property),
+                            span,
+                        }),
+                }
             }
 
             _ => {
-                let object = self.evaluate(object)?;
+                let value = self.evaluate(object)?;
 
-                match object {
+                match value {
                     Value::Array(_) => {
                         todo!("temporary non-identifier support");
+                    }
+
+                    Value::String(text) => {
+                        methods::string::call(self, text, property, arguments, span)
+                    }
+
+                    Value::Object(_) => {
+                        todo!("temporary object support");
                     }
 
                     _ =>
@@ -805,256 +826,6 @@ impl<'a> Interpreter<'a> {
                         }),
                 }
             }
-        }
-    }
-
-    fn array_method(
-        &mut self,
-        name: &str,
-        array: &mut Vec<Value>,
-        property: &str,
-        arguments: &[Expression],
-        span: Span
-    ) -> Result<Value, InterpreterError> {
-        match property {
-            "add" => {
-                match arguments.len() {
-                    1 => {
-                        let value = self.evaluate(&arguments[0])?;
-
-                        array.push(value);
-                    }
-
-                    2 => {
-                        let index = self.evaluate(&arguments[0])?;
-
-                        let index = match index {
-                            Value::Number(n) => n as usize,
-
-                            _ => {
-                                return Err(InterpreterError::RuntimeError {
-                                    message: "Insert index must be a number.".to_string(),
-                                    span,
-                                });
-                            }
-                        };
-
-                        if index > array.len() {
-                            return Err(InterpreterError::RuntimeError {
-                                message: "Array index out of bounds.".to_string(),
-                                span,
-                            });
-                        }
-
-                        let value = self.evaluate(&arguments[1])?;
-
-                        array.insert(index, value);
-                    }
-
-                    _ => {
-                        return Err(InterpreterError::RuntimeError {
-                            message: "array.add expects 1 or 2 arguments.".to_string(),
-                            span,
-                        });
-                    }
-                }
-
-                self.environment
-                    .borrow_mut()
-                    .assign(name.to_string(), Value::Array(array.clone()))?;
-
-                Ok(Value::Null)
-            }
-
-            "remove" => {
-                match arguments.len() {
-                    0 => {
-                        if array.is_empty() {
-                            return Err(InterpreterError::RuntimeError {
-                                message: "Array is empty.".to_string(),
-                                span,
-                            });
-                        }
-
-                        array.remove(array.len() - 1);
-                    }
-
-                    1 => {
-                        let index = self.evaluate(&arguments[0])?;
-
-                        let index = match index {
-                            Value::Number(n) => n as usize,
-
-                            _ => {
-                                return Err(InterpreterError::RuntimeError {
-                                    message: "Remove index must be a number.".to_string(),
-                                    span,
-                                });
-                            }
-                        };
-
-                        if index >= array.len() {
-                            return Err(InterpreterError::RuntimeError {
-                                message: "Array index must be a number.".to_string(),
-                                span,
-                            });
-                        }
-
-                        array.remove(index);
-                    }
-
-                    _ => {
-                        return Err(InterpreterError::RuntimeError {
-                            message: "array.remove expects 0 or 1 arguments.".to_string(),
-                            span,
-                        });
-                    }
-                }
-
-                self.environment
-                    .borrow_mut()
-                    .assign(name.to_string(), Value::Array(array.clone()))?;
-
-                Ok(Value::Null)
-            }
-
-            "contains" => {
-                if arguments.len() != 1 {
-                    return Err(InterpreterError::RuntimeError {
-                        message: "array.contains expects 1 argument.".to_string(),
-                        span,
-                    });
-                }
-
-                let value = self.evaluate(&arguments[0])?;
-
-                Ok(Value::Boolean(array.contains(&value)))
-            }
-
-            "clear" => {
-                if !arguments.is_empty() {
-                    return Err(InterpreterError::RuntimeError {
-                        message: "array.clear expects 0 arguments.".to_string(),
-                        span,
-                    });
-                }
-
-                array.clear();
-
-                self.environment
-                    .borrow_mut()
-                    .assign(name.to_string(), Value::Array(array.clone()))?;
-
-                Ok(Value::Null)
-            }
-
-            "first" => {
-                if !arguments.is_empty() {
-                    return Err(InterpreterError::RuntimeError {
-                        message: "array.first expects 0 arguments.".to_string(),
-                        span,
-                    });
-                }
-
-                match array.first() {
-                    Some(value) => Ok(value.clone()),
-
-                    None =>
-                        Err(InterpreterError::RuntimeError {
-                            message: "Array is empty.".to_string(),
-                            span,
-                        }),
-                }
-            }
-
-            "last" => {
-                if !arguments.is_empty() {
-                    return Err(InterpreterError::RuntimeError {
-                        message: "array.last expects 0 arguments.".to_string(),
-                        span,
-                    });
-                }
-
-                match array.last() {
-                    Some(value) => Ok(value.clone()),
-
-                    None =>
-                        Err(InterpreterError::RuntimeError {
-                            message: "Array is empty.".to_string(),
-                            span,
-                        }),
-                }
-            }
-
-            "isEmpty" => {
-                if !arguments.is_empty() {
-                    return Err(InterpreterError::RuntimeError {
-                        message: "array.isEmpty expects 0 arguments.".to_string(),
-                        span,
-                    });
-                }
-
-                Ok(Value::Boolean(array.is_empty()))
-            }
-
-            "reverse" => {
-                if !arguments.is_empty() {
-                    return Err(InterpreterError::RuntimeError {
-                        message: "array.reverse expects 0 arguments.".to_string(),
-                        span,
-                    });
-                }
-
-                array.reverse();
-
-                self.environment
-                    .borrow_mut()
-                    .assign(name.to_string(), Value::Array(array.clone()))?;
-
-                Ok(Value::Null)
-            }
-
-            "sort" => {
-                if !arguments.is_empty() {
-                    return Err(InterpreterError::RuntimeError {
-                        message: "array.sort expects 0 arguments.".to_string(),
-                        span,
-                    });
-                }
-
-                if !array.iter().all(|value| matches!(value, Value::Number(_))) {
-                    return Err(InterpreterError::RuntimeError {
-                        message: "array.sort only supports numeric arrays.".to_string(),
-                        span,
-                    });
-                }
-
-                array.sort_by(|a, b| {
-                    let a = match a {
-                        Value::Number(n) => *n,
-                        _ => unreachable!(),
-                    };
-
-                    let b = match b {
-                        Value::Number(n) => *n,
-                        _ => unreachable!(),
-                    };
-
-                    a.partial_cmp(&b).unwrap()
-                });
-
-                self.environment
-                    .borrow_mut()
-                    .assign(name.to_string(), Value::Array(array.clone()))?;
-
-                Ok(Value::Null)
-            }
-
-            _ =>
-                Err(InterpreterError::RuntimeError {
-                    message: format!("Unknown array method '{}'.", property),
-                    span,
-                }),
         }
     }
 

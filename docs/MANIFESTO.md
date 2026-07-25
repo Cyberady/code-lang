@@ -16,25 +16,29 @@ Our goal is not to create another programming language.
 
 Our goal is to create the simplest language capable of building real production software.
 
+Programming should be about building ideas, not fighting syntax.
+
 ---
 
 # Our Mission
 
-Build a programming language where developers spend less time fighting the language and more time building products.
+Build a programming language where developers spend less time learning the language and more time building software.
 
-The language should feel natural, predictable, and enjoyable to use.
+Code should feel natural, predictable, and enjoyable to use.
+
+Every decision should reduce complexity while preserving power.
 
 ---
 
 # Vision
 
-We imagine a language where someone can read code they have never seen before and understand it immediately.
+We envision a language that disappears.
 
-Every decision should reduce cognitive load.
+Developers should think about solving problems—not about the language itself.
 
-Every feature should improve productivity.
+The best syntax is the syntax you no longer notice.
 
-Every piece of syntax should justify its existence.
+A program should communicate its intent clearly, allowing anyone to understand it without needing to decode unnecessary language rules.
 
 ---
 
@@ -46,17 +50,19 @@ Code is written for humans.
 
 The computer is secondary.
 
-Readable code is always more valuable than clever code.
+Readable software is always more valuable than clever software.
+
+If a feature improves the compiler but makes the language harder for people, it should be reconsidered.
 
 ---
 
 ## 2. One Obvious Way
 
-If two pieces of syntax solve the same problem, one of them should probably disappear.
+There should be one clear and recommended way to solve common problems.
 
-The language should encourage consistency.
+If multiple syntaxes solve the same task equally well, one of them should probably disappear.
 
-There should be one clear and recommended solution for common tasks.
+Consistency is more valuable than endless flexibility.
 
 ---
 
@@ -67,6 +73,8 @@ Every keyword...
 Every symbol...
 
 Every operator...
+
+Every piece of punctuation...
 
 must earn its place.
 
@@ -82,35 +90,29 @@ Reading software should feel like reading structured English.
 
 Developers should rarely need comments to explain basic logic.
 
+Clear code ages better than clever code.
+
 ---
 
 ## 5. Beginner Friendly
 
-A beginner should be able to understand basic Code programs within hours, not weeks.
+Programming is already difficult.
 
-The language should remove unnecessary concepts while preserving powerful capabilities.
+The language should not make it harder.
 
-Learning programming should focus on problem solving, not syntax.
+A beginner should be able to understand the fundamentals quickly and build useful programs without memorizing unnecessary syntax or language-specific tricks.
+
+Learning programming should focus on solving problems—not learning complicated language rules.
 
 ---
 
 ## 6. Production Ready
 
-Simple does not mean limited.
+Simple should never mean limited.
 
-Code should be capable of building:
+Code is designed to scale from small scripts to large production systems while preserving the same philosophy of simplicity and readability.
 
-* APIs
-* Web applications
-* Desktop applications
-* Mobile applications
-* Automation tools
-* AI applications
-* Cloud services
-
-One language.
-
-One philosophy.
+Developers should not outgrow the language as their projects grow.
 
 ---
 
@@ -118,12 +120,13 @@ One philosophy.
 
 Rules should behave the same everywhere.
 
-Examples:
+Examples include:
 
-* Braces are always required.
-* Conditions always evaluate to booleans.
-* Properties are nouns.
-* Methods are verbs.
+- Braces are always required.
+- Conditions always evaluate to booleans.
+- Properties are nouns.
+- Methods are verbs.
+- Similar concepts should use similar syntax.
 
 Predictability is more valuable than clever shortcuts.
 
@@ -131,47 +134,45 @@ Predictability is more valuable than clever shortcuts.
 
 ## 8. Batteries Included
 
-Developers should not need dozens of third-party libraries for common tasks.
+Common programming tasks should work out of the box.
 
-The standard library should provide practical tools for everyday development.
+The standard library should provide practical, high-quality tools for everyday software development whenever it makes sense.
 
-Examples include:
-
-* HTTP
-* File system
-* JSON
-* Database access
-* Date & time
-* Cryptography
-* Testing
+Developers should spend their time building applications—not searching for basic libraries.
 
 ---
 
 ## 9. Developer Experience
 
-Writing software should feel smooth.
+Writing software should feel smooth from beginning to end.
 
-The official ecosystem should provide:
+The official ecosystem should provide everything needed for a productive workflow.
 
-* Formatter
-* Linter
-* Package manager
-* Testing framework
-* Documentation generator
-* Language Server (LSP)
-* Debugger
+This includes tools for formatting, linting, testing, debugging, documentation, package management, and editor integration.
 
-Everything should work together seamlessly.
+Everything should work together naturally.
 
 ---
 
 ## 10. Long-Term Stability
 
-Breaking changes should be rare.
+Software should continue working as the language evolves.
 
-Developers should trust that their applications continue to work as the language evolves.
+Breaking changes should be rare, carefully considered, and introduced only when the long-term benefits clearly outweigh the costs.
 
-Stability builds confidence.
+Developers should upgrade with confidence.
+
+---
+
+## 11. Simplicity Before Features
+
+Every new feature increases the complexity of a language.
+
+New features should only exist when they solve real problems that cannot already be solved clearly.
+
+Removing complexity is often a better improvement than adding functionality.
+
+The smallest useful language is better than the largest impressive one.
 
 ---
 
@@ -179,11 +180,15 @@ Stability builds confidence.
 
 Code is not designed to impress with clever syntax.
 
-Code is not trying to become the smallest language.
+Code is not trying to become the smallest programming language.
 
 Code is not trying to copy another language.
 
+Code does not add features simply because other languages have them.
+
 Code values clarity over novelty.
+
+Code values simplicity over complexity.
 
 ---
 
@@ -194,10 +199,12 @@ Before adding any new feature, we ask:
 1. Does it make the language easier to understand?
 2. Does it improve developer productivity?
 3. Can a beginner learn it quickly?
-4. Does it fit our existing philosophy?
-5. Is there already another way to accomplish this?
+4. Does it follow our existing philosophy?
+5. Does it reduce complexity rather than increase it?
+6. Is there already a clear way to solve this problem?
+7. Will this still feel like the right decision ten years from now?
 
-If the answer to these questions is not convincing, the feature should not be added.
+If these questions cannot be answered convincingly, the feature should not be added.
 
 ---
 
@@ -205,11 +212,13 @@ If the answer to these questions is not convincing, the feature should not be ad
 
 Code succeeds when developers say:
 
-> "I knew exactly what this program did without reading the documentation."
+> "I understood this program the first time I read it."
 
 It succeeds when beginners enjoy learning.
 
-It succeeds when experienced developers choose it because it helps them ship products faster.
+It succeeds when experienced developers choose it because it helps them build software faster.
+
+It succeeds when the language stays simple as it grows.
 
 ---
 
@@ -223,18 +232,21 @@ It succeeds when experienced developers choose it because it helps them ship pro
 
 Every version of Code will strive to remain:
 
-* Simple
-* Readable
-* Consistent
-* Productive
-* Reliable
+- Simple
+- Readable
+- Consistent
+- Productive
+- Reliable
+- Stable
 
-No feature will be added simply because other languages have it.
+No feature will be added simply because it is popular.
 
-Every feature must make the language better.
+Every feature must make the language genuinely better.
+
+Every release should make Code easier to use—not harder.
 
 ---
 
-**The language serves the developer.**
+> **The language serves the developer.**
 
-**The developer should never serve the language.**
+> **The developer should never serve the language.**
