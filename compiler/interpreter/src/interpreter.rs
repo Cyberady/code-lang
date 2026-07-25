@@ -12,7 +12,7 @@ use lexer::span::Span;
 
 use std::{ cell::RefCell, rc::Rc };
 
-use crate::builtins::{ builtin_print, builtin_range };
+use crate::builtins;
 
 use lexer::lexer::Lexer;
 
@@ -502,12 +502,8 @@ impl<'a> Interpreter<'a> {
         arguments: &[Expression]
     ) -> Result<Value, InterpreterError> {
         match callee {
-            Expression::Identifier { name, .. } if name == "print" => {
-                builtin_print(self, arguments)
-            }
-
-            Expression::Identifier { name, .. } if name == "range" => {
-                builtin_range(self, arguments)
+            Expression::Identifier { name, .. } if matches!(name.as_str(), "print" | "range") => {
+                builtins::call(self, name, arguments)
             }
 
             Expression::Property { object, property, span } =>
@@ -798,8 +794,8 @@ impl<'a> Interpreter<'a> {
                         methods::string::call(self, text, property, arguments, span)
                     }
 
-                    Value::Object(object) => {
-                        methods::object::call(self, object, property, arguments, span)
+                    Value::Object(mut object) => {
+                        methods::object::call(self, name, &mut object, property, arguments, span)
                     }
 
                     _ =>

@@ -1,5 +1,4 @@
-person = {
-    name: "Aditya"
-}
+numbers = range(3)
 
-person.has(123)
+print(numbers)
+print(numbers.length)
