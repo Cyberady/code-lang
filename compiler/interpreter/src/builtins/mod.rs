@@ -1,5 +1,6 @@
 pub mod print;
 pub mod range;
+pub mod math;
 
 use parser::ast::Expression;
 

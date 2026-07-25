@@ -1,4 +1,0 @@
-numbers = range(3)
-
-print(numbers)
-print(numbers.length)

@@ -441,6 +441,13 @@ impl<'a> Interpreter<'a> {
             }
 
             Expression::Property { object, property, span } => {
+                // Builtin namespaces
+                if let Expression::Identifier { name, .. } = object.as_ref() {
+                    if name == "math" {
+                        return builtins::math::property(property, *span);
+                    }
+                }
+
                 let object = self.evaluate(object)?;
 
                 match object {
@@ -777,6 +784,9 @@ impl<'a> Interpreter<'a> {
     ) -> Result<Value, InterpreterError> {
         match object {
             Expression::Identifier { name, .. } => {
+                if name == "math" {
+                    return builtins::math::call(self, property, arguments, span);
+                }
                 let value = self.environment
                     .borrow()
                     .get(name)
