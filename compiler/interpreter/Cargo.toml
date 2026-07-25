@@ -7,3 +7,4 @@ edition = "2024"
 diagnostics = { path = "../diagnostics" }
 parser = { path = "../parser" }
 lexer = { path = "../lexer" }
+rand = "0.9"

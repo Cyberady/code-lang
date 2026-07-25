@@ -787,6 +787,10 @@ impl<'a> Interpreter<'a> {
                 if name == "math" {
                     return builtins::math::call(self, property, arguments, span);
                 }
+
+                if name == "random" {
+                    return builtins::random::call(self, property, arguments, span);
+                }
                 let value = self.environment
                     .borrow()
                     .get(name)

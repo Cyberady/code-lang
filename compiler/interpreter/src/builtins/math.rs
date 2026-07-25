@@ -1,6 +1,7 @@
 use lexer::span::Span;
+use parser::ast::Expression;
 
-use crate::{ error::InterpreterError, value::Value };
+use crate::{ error::InterpreterError, interpreter::Interpreter, value::Value };
 
 pub fn property(property: &str, span: Span) -> Result<Value, InterpreterError> {
     match property {
@@ -15,10 +16,6 @@ pub fn property(property: &str, span: Span) -> Result<Value, InterpreterError> {
             }),
     }
 }
-
-use parser::ast::Expression;
-
-use crate::interpreter::Interpreter;
 
 pub fn call(
     interpreter: &mut Interpreter,
@@ -38,7 +35,7 @@ pub fn call(
             let value = interpreter.evaluate(&arguments[0])?;
 
             match value {
-                Value::Number(number) => { Ok(Value::Number(number.sqrt())) }
+                Value::Number(number) => Ok(Value::Number(number.sqrt())),
 
                 _ =>
                     Err(InterpreterError::RuntimeError {
@@ -88,6 +85,113 @@ pub fn call(
                 _ =>
                     Err(InterpreterError::RuntimeError {
                         message: "math.pow() expects two numbers.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "floor" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "math.floor() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::Number(number) => Ok(Value::Number(number.floor())),
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "math.floor() expects a number.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "ceil" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "math.ceil() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::Number(number) => Ok(Value::Number(number.ceil())),
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "math.ceil() expects a number.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "round" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "math.round() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::Number(number) => Ok(Value::Number(number.round())),
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "math.round() expects a number.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "min" => {
+            if arguments.len() != 2 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "math.min() expects exactly 2 arguments.".to_string(),
+                    span,
+                });
+            }
+
+            let first = interpreter.evaluate(&arguments[0])?;
+            let second = interpreter.evaluate(&arguments[1])?;
+
+            match (first, second) {
+                (Value::Number(a), Value::Number(b)) => { Ok(Value::Number(a.min(b))) }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "math.min() expects two numbers.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "max" => {
+            if arguments.len() != 2 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "math.max() expects exactly 2 arguments.".to_string(),
+                    span,
+                });
+            }
+
+            let first = interpreter.evaluate(&arguments[0])?;
+            let second = interpreter.evaluate(&arguments[1])?;
+
+            match (first, second) {
+                (Value::Number(a), Value::Number(b)) => { Ok(Value::Number(a.max(b))) }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "math.max() expects two numbers.".to_string(),
                         span,
                     }),
             }

@@ -1,6 +1,7 @@
 pub mod print;
 pub mod range;
 pub mod math;
+pub mod random;
 
 use parser::ast::Expression;
 
