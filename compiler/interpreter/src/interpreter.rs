@@ -448,7 +448,11 @@ impl<'a> Interpreter<'a> {
                         Ok(Value::Number(values.len() as f64))
                     }
 
-                    Value::Object(properties) =>
+                    Value::String(text) if property == "length" => {
+                        Ok(Value::Number(text.chars().count() as f64))
+                    }
+
+                    Value::Object(properties) => {
                         match properties.get(property) {
                             Some(value) => Ok(value.clone()),
 
@@ -458,6 +462,7 @@ impl<'a> Interpreter<'a> {
                                     span: *span,
                                 }),
                         }
+                    }
 
                     _ =>
                         Err(InterpreterError::RuntimeError {
@@ -793,7 +798,9 @@ impl<'a> Interpreter<'a> {
                         methods::string::call(self, text, property, arguments, span)
                     }
 
-                    Value::Object(_) => { todo!("object methods") }
+                    Value::Object(object) => {
+                        methods::object::call(self, object, property, arguments, span)
+                    }
 
                     _ =>
                         Err(InterpreterError::RuntimeError {
