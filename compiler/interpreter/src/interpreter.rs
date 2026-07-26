@@ -446,6 +446,14 @@ impl<'a> Interpreter<'a> {
                     if name == "math" {
                         return builtins::math::property(property, *span);
                     }
+
+                    if name == "random" {
+                        return builtins::random::property(property, *span);
+                    }
+
+                    if name == "time" {
+                        return builtins::time::property(property, *span);
+                    }
                 }
 
                 let object = self.evaluate(object)?;
@@ -790,6 +798,10 @@ impl<'a> Interpreter<'a> {
 
                 if name == "random" {
                     return builtins::random::call(self, property, arguments, span);
+                }
+
+                if name == "time" {
+                    return builtins::time::call(self, property, arguments, span);
                 }
                 let value = self.environment
                     .borrow()

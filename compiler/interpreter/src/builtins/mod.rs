@@ -2,6 +2,7 @@ pub mod print;
 pub mod range;
 pub mod math;
 pub mod random;
+pub mod time;
 
 use parser::ast::Expression;
 
