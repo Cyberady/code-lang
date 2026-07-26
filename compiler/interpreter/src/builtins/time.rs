@@ -1,6 +1,8 @@
 use chrono::{ Datelike, Local, Timelike, SecondsFormat };
 use lexer::span::Span;
 use parser::ast::Expression;
+use std::thread;
+use std::time::Duration;
 
 use crate::{ error::InterpreterError, interpreter::Interpreter, value::Value };
 
@@ -163,6 +165,115 @@ pub fn call(
             let iso = Local::now().to_rfc3339_opts(SecondsFormat::Secs, true);
 
             Ok(Value::String(iso))
+        }
+
+        "weekday" => {
+            if !arguments.is_empty() {
+                return Err(InterpreterError::RuntimeError {
+                    message: "time.weekday() expects no arguments.".to_string(),
+                    span,
+                });
+            }
+
+            let weekday = Local::now().weekday().to_string();
+
+            Ok(Value::String(weekday))
+        }
+
+        "weekdayNumber" => {
+            if !arguments.is_empty() {
+                return Err(InterpreterError::RuntimeError {
+                    message: "time.weekdayNumber() expects no arguments.".to_string(),
+                    span,
+                });
+            }
+
+            Ok(Value::Number(Local::now().weekday().number_from_monday() as f64))
+        }
+
+        "dayOfYear" => {
+            if !arguments.is_empty() {
+                return Err(InterpreterError::RuntimeError {
+                    message: "time.dayOfYear() expects no arguments.".to_string(),
+                    span,
+                });
+            }
+
+            Ok(Value::Number(Local::now().ordinal() as f64))
+        }
+
+        "isLeapYear" => {
+            if !arguments.is_empty() {
+                return Err(InterpreterError::RuntimeError {
+                    message: "time.isLeapYear() expects no arguments.".to_string(),
+                    span,
+                });
+            }
+
+            let year = Local::now().year();
+
+            let leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+
+            Ok(Value::Boolean(leap))
+        }
+
+        "daysInYear" => {
+            if !arguments.is_empty() {
+                return Err(InterpreterError::RuntimeError {
+                    message: "time.daysInYear() expects no arguments.".to_string(),
+                    span,
+                });
+            }
+
+            let year = Local::now().year();
+
+            let leap = (year % 4 == 0 && year % 100 != 0) || year % 400 == 0;
+
+            Ok(Value::Number(if leap { 366.0 } else { 365.0 }))
+        }
+
+        "timezone" => {
+            if !arguments.is_empty() {
+                return Err(InterpreterError::RuntimeError {
+                    message: "time.timezone() expects no arguments.".to_string(),
+                    span,
+                });
+            }
+
+            let timezone = Local::now().format("%:z").to_string();
+
+            Ok(Value::String(timezone))
+        }
+
+        "sleep" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "time.sleep() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = _interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::Number(ms) => {
+                    if ms < 0.0 {
+                        return Err(InterpreterError::RuntimeError {
+                            message: "time.sleep() expects a non-negative number.".to_string(),
+                            span,
+                        });
+                    }
+
+                    thread::sleep(Duration::from_millis(ms as u64));
+                    Ok(Value::Null)
+                }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "time.sleep() expects a number.".to_string(),
+                        span,
+                    }),
+            }
         }
 
         _ =>
