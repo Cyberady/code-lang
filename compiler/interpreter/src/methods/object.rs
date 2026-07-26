@@ -1,7 +1,7 @@
-use crate::{ error::InterpreterError, interpreter::Interpreter, value::Value };
+use crate::{error::InterpreterError, interpreter::Interpreter, value::Value};
 
-use parser::ast::Expression;
 use lexer::span::Span;
+use parser::ast::Expression;
 
 pub fn call(
     interpreter: &mut Interpreter,
@@ -9,7 +9,7 @@ pub fn call(
     object: &mut std::collections::HashMap<String, Value>,
     property: &str,
     arguments: &[Expression],
-    span: Span
+    span: Span,
 ) -> Result<Value, InterpreterError> {
     match property {
         "has" => {
@@ -93,7 +93,8 @@ pub fn call(
                 });
             }
 
-            interpreter.environment
+            interpreter
+                .environment
                 .borrow_mut()
                 .assign(name.to_string(), Value::Object(object.clone()))?;
 
@@ -110,17 +111,17 @@ pub fn call(
 
             object.clear();
 
-            interpreter.environment
+            interpreter
+                .environment
                 .borrow_mut()
                 .assign(name.to_string(), Value::Object(object.clone()))?;
 
             Ok(Value::Null)
         }
 
-        _ =>
-            Err(InterpreterError::RuntimeError {
-                message: format!("Unknown object method '{}'.", property),
-                span,
-            }),
+        _ => Err(InterpreterError::RuntimeError {
+            message: format!("Unknown object method '{}'.", property),
+            span,
+        }),
     }
 }

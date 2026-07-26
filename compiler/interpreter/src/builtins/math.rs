@@ -1,7 +1,7 @@
 use lexer::span::Span;
 use parser::ast::Expression;
 
-use crate::{ error::InterpreterError, interpreter::Interpreter, value::Value };
+use crate::{error::InterpreterError, interpreter::Interpreter, value::Value};
 
 pub fn property(property: &str, span: Span) -> Result<Value, InterpreterError> {
     match property {
@@ -9,11 +9,10 @@ pub fn property(property: &str, span: Span) -> Result<Value, InterpreterError> {
 
         "e" => Ok(Value::Number(std::f64::consts::E)),
 
-        _ =>
-            Err(InterpreterError::RuntimeError {
-                message: format!("Unknown math property '{}'.", property),
-                span,
-            }),
+        _ => Err(InterpreterError::RuntimeError {
+            message: format!("Unknown math property '{}'.", property),
+            span,
+        }),
     }
 }
 
@@ -21,7 +20,7 @@ pub fn call(
     interpreter: &mut Interpreter,
     method: &str,
     arguments: &[Expression],
-    span: Span
+    span: Span,
 ) -> Result<Value, InterpreterError> {
     match method {
         "sqrt" => {
@@ -37,11 +36,10 @@ pub fn call(
             match value {
                 Value::Number(number) => Ok(Value::Number(number.sqrt())),
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "math.sqrt() expects a number.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "math.sqrt() expects a number.".to_string(),
+                    span,
+                }),
             }
         }
 
@@ -58,11 +56,10 @@ pub fn call(
             match value {
                 Value::Number(number) => Ok(Value::Number(number.abs())),
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "math.abs() expects a number.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "math.abs() expects a number.".to_string(),
+                    span,
+                }),
             }
         }
 
@@ -82,11 +79,10 @@ pub fn call(
                     Ok(Value::Number(base.powf(exponent)))
                 }
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "math.pow() expects two numbers.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "math.pow() expects two numbers.".to_string(),
+                    span,
+                }),
             }
         }
 
@@ -103,11 +99,10 @@ pub fn call(
             match value {
                 Value::Number(number) => Ok(Value::Number(number.floor())),
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "math.floor() expects a number.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "math.floor() expects a number.".to_string(),
+                    span,
+                }),
             }
         }
 
@@ -124,11 +119,10 @@ pub fn call(
             match value {
                 Value::Number(number) => Ok(Value::Number(number.ceil())),
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "math.ceil() expects a number.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "math.ceil() expects a number.".to_string(),
+                    span,
+                }),
             }
         }
 
@@ -145,11 +139,10 @@ pub fn call(
             match value {
                 Value::Number(number) => Ok(Value::Number(number.round())),
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "math.round() expects a number.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "math.round() expects a number.".to_string(),
+                    span,
+                }),
             }
         }
 
@@ -165,13 +158,12 @@ pub fn call(
             let second = interpreter.evaluate(&arguments[1])?;
 
             match (first, second) {
-                (Value::Number(a), Value::Number(b)) => { Ok(Value::Number(a.min(b))) }
+                (Value::Number(a), Value::Number(b)) => Ok(Value::Number(a.min(b))),
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "math.min() expects two numbers.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "math.min() expects two numbers.".to_string(),
+                    span,
+                }),
             }
         }
 
@@ -187,20 +179,18 @@ pub fn call(
             let second = interpreter.evaluate(&arguments[1])?;
 
             match (first, second) {
-                (Value::Number(a), Value::Number(b)) => { Ok(Value::Number(a.max(b))) }
+                (Value::Number(a), Value::Number(b)) => Ok(Value::Number(a.max(b))),
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "math.max() expects two numbers.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "math.max() expects two numbers.".to_string(),
+                    span,
+                }),
             }
         }
 
-        _ =>
-            Err(InterpreterError::RuntimeError {
-                message: format!("Unknown math method '{}'.", method),
-                span,
-            }),
+        _ => Err(InterpreterError::RuntimeError {
+            message: format!("Unknown math method '{}'.", method),
+            span,
+        }),
     }
 }

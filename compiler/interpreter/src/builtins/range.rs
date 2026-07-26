@@ -2,11 +2,7 @@ use parser::ast::Expression;
 
 use lexer::span::Span;
 
-use crate::{
-    error::InterpreterError,
-    interpreter::Interpreter,
-    value::Value,
-};
+use crate::{error::InterpreterError, interpreter::Interpreter, value::Value};
 
 pub fn call(
     interpreter: &mut Interpreter,

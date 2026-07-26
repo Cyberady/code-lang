@@ -1,16 +1,12 @@
-pub mod print;
-pub mod range;
 pub mod math;
+pub mod print;
 pub mod random;
+pub mod range;
 pub mod time;
 
 use parser::ast::Expression;
 
-use crate::{
-    error::InterpreterError,
-    interpreter::Interpreter,
-    value::Value,
-};
+use crate::{error::InterpreterError, interpreter::Interpreter, value::Value};
 
 pub fn call(
     interpreter: &mut Interpreter,

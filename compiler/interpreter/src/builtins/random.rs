@@ -2,15 +2,14 @@ use lexer::span::Span;
 use parser::ast::Expression;
 use rand::Rng;
 
-use crate::{ error::InterpreterError, interpreter::Interpreter, value::Value };
+use crate::{error::InterpreterError, interpreter::Interpreter, value::Value};
 
 pub fn property(property: &str, span: Span) -> Result<Value, InterpreterError> {
     match property {
-        _ =>
-            Err(InterpreterError::RuntimeError {
-                message: format!("Unknown random property '{}'.", property),
-                span,
-            }),
+        _ => Err(InterpreterError::RuntimeError {
+            message: format!("Unknown random property '{}'.", property),
+            span,
+        }),
     }
 }
 
@@ -18,7 +17,7 @@ pub fn call(
     interpreter: &mut Interpreter,
     method: &str,
     arguments: &[Expression],
-    span: Span
+    span: Span,
 ) -> Result<Value, InterpreterError> {
     match method {
         "int" => {
@@ -41,11 +40,10 @@ pub fn call(
                     Ok(Value::Number(value as f64))
                 }
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "random.int() expects two numbers.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "random.int() expects two numbers.".to_string(),
+                    span,
+                }),
             }
         }
 
@@ -100,17 +98,15 @@ pub fn call(
                     Ok(array[index].clone())
                 }
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "random.choice() expects an array.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "random.choice() expects an array.".to_string(),
+                    span,
+                }),
             }
         }
-        _ =>
-            Err(InterpreterError::RuntimeError {
-                message: format!("Unknown random method '{}'.", method),
-                span,
-            }),
+        _ => Err(InterpreterError::RuntimeError {
+            message: format!("Unknown random method '{}'.", method),
+            span,
+        }),
     }
 }

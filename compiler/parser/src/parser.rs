@@ -1,9 +1,9 @@
 //! Parser implementation for the Code programming language.
 
-use lexer::token::{ Token, TokenKind };
+use lexer::token::{Token, TokenKind};
 
 use crate::{
-    ast::{ BinaryOperator, Expression, Program, Statement, UnaryOperator },
+    ast::{BinaryOperator, Expression, Program, Statement, UnaryOperator},
     error::ParserError,
 };
 
@@ -63,7 +63,11 @@ impl Parser {
                             return Ok(Statement::Assignment { name, value, span });
                         }
 
-                        Expression::Index { object, index, span } => {
+                        Expression::Index {
+                            object,
+                            index,
+                            span,
+                        } => {
                             return Ok(Statement::IndexAssignment {
                                 object: *object,
                                 index: *index,
@@ -72,7 +76,11 @@ impl Parser {
                             });
                         }
 
-                        Expression::Property { object, property, span } => {
+                        Expression::Property {
+                            object,
+                            property,
+                            span,
+                        } => {
                             return Ok(Statement::PropertyAssignment {
                                 object: *object,
                                 property,

@@ -1,3 +1,3 @@
 pub mod array;
-pub mod string;
 pub mod object;
+pub mod string;

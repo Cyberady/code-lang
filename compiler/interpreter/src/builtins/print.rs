@@ -2,11 +2,11 @@ use parser::ast::Expression;
 
 use lexer::span::Span;
 
-use crate::{ error::InterpreterError, interpreter::Interpreter, value::Value };
+use crate::{error::InterpreterError, interpreter::Interpreter, value::Value};
 
 pub fn call(
     interpreter: &mut Interpreter,
-    arguments: &[Expression]
+    arguments: &[Expression],
 ) -> Result<Value, InterpreterError> {
     if arguments.len() != 1 {
         return Err(InterpreterError::InvalidBinaryOperation {

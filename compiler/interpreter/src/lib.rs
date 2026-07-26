@@ -5,8 +5,8 @@ pub mod diagnostic;
 pub mod environment;
 pub mod error;
 pub mod interpreter;
-pub mod value;
 pub mod methods;
+pub mod value;
 
 #[cfg(test)]
 mod tests;

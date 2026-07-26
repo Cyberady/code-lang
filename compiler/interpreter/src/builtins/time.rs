@@ -1,26 +1,23 @@
-use chrono::{ Datelike, Local, Timelike, SecondsFormat };
+use chrono::{Datelike, Local, SecondsFormat, Timelike};
 use lexer::span::Span;
 use parser::ast::Expression;
 use std::thread;
 use std::time::Duration;
 
-use crate::{ error::InterpreterError, interpreter::Interpreter, value::Value };
+use crate::{error::InterpreterError, interpreter::Interpreter, value::Value};
 
 pub fn property(property: &str, span: Span) -> Result<Value, InterpreterError> {
-    match property {
-        _ =>
-            Err(InterpreterError::RuntimeError {
-                message: format!("Unknown time property '{}'.", property),
-                span,
-            }),
-    }
+    Err(InterpreterError::RuntimeError {
+        message: format!("Unknown time property '{}'.", property),
+        span,
+    })
 }
 
 pub fn call(
     _interpreter: &mut Interpreter,
     method: &str,
     arguments: &[Expression],
-    span: Span
+    span: Span,
 ) -> Result<Value, InterpreterError> {
     match method {
         "now" => {
@@ -188,7 +185,9 @@ pub fn call(
                 });
             }
 
-            Ok(Value::Number(Local::now().weekday().number_from_monday() as f64))
+            Ok(Value::Number(
+                Local::now().weekday().number_from_monday() as f64
+            ))
         }
 
         "dayOfYear" => {
@@ -264,22 +263,36 @@ pub fn call(
                         });
                     }
 
+                    if ms.fract() != 0.0 {
+                        return Err(InterpreterError::RuntimeError {
+                            message: "time.sleep() expects an integer number of milliseconds."
+                                .to_string(),
+                            span,
+                        });
+                    }
+
+                    if ms > (u64::MAX as f64) {
+                        return Err(InterpreterError::RuntimeError {
+                            message: "time.sleep() duration is too large.".to_string(),
+                            span,
+                        });
+                    }
+
                     thread::sleep(Duration::from_millis(ms as u64));
+
                     Ok(Value::Null)
                 }
 
-                _ =>
-                    Err(InterpreterError::RuntimeError {
-                        message: "time.sleep() expects a number.".to_string(),
-                        span,
-                    }),
+                _ => Err(InterpreterError::RuntimeError {
+                    message: "time.sleep() expects a number.".to_string(),
+                    span,
+                }),
             }
         }
 
-        _ =>
-            Err(InterpreterError::RuntimeError {
-                message: format!("Unknown time method '{}'.", method),
-                span,
-            }),
+        _ => Err(InterpreterError::RuntimeError {
+            message: format!("Unknown time method '{}'.", method),
+            span,
+        }),
     }
 }

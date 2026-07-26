@@ -1,14 +1,14 @@
-use crate::{ error::InterpreterError, interpreter::Interpreter, value::Value };
+use crate::{error::InterpreterError, interpreter::Interpreter, value::Value};
 
-use parser::ast::Expression;
 use lexer::span::Span;
+use parser::ast::Expression;
 
 pub fn call(
     interpreter: &mut Interpreter,
     text: String,
     property: &str,
     arguments: &[Expression],
-    span: Span
+    span: Span,
 ) -> Result<Value, InterpreterError> {
     match property {
         "upper" => {
@@ -193,10 +193,9 @@ pub fn call(
             Ok(Value::String(reversed))
         }
 
-        _ =>
-            Err(InterpreterError::RuntimeError {
-                message: format!("Unknown string method '{}'.", property),
-                span,
-            }),
+        _ => Err(InterpreterError::RuntimeError {
+            message: format!("Unknown string method '{}'.", property),
+            span,
+        }),
     }
 }
