@@ -1,1 +1,1 @@
-time.sleep("hello")
+print(file.read("missing.txt"))
