@@ -1,4 +1,5 @@
-use std::fs;
+use std::fs::{ self, OpenOptions };
+use std::io::Write;
 use std::path::Path;
 
 use lexer::span::Span;
@@ -105,6 +106,55 @@ pub fn call(
                 _ =>
                     Err(InterpreterError::RuntimeError {
                         message: "file.write() expects the first argument to be a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "add" => {
+            if arguments.len() != 2 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.add() expects exactly 2 arguments.".to_string(),
+                    span,
+                });
+            }
+
+            let path = interpreter.evaluate(&arguments[0])?;
+            let text = interpreter.evaluate(&arguments[1])?;
+
+            match (path, text) {
+                (Value::String(path), Value::String(text)) => {
+                    let mut file = match OpenOptions::new().create(true).append(true).open(&path) {
+                        Ok(file) => file,
+
+                        Err(error) => {
+                            return Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            });
+                        }
+                    };
+
+                    match file.write_all(text.as_bytes()) {
+                        Ok(_) => Ok(Value::Null),
+
+                        Err(error) =>
+                            Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            }),
+                    }
+                }
+
+                (Value::String(_), _) =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.add() expects the second argument to be a string.".to_string(),
+                        span,
+                    }),
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.add() expects the first argument to be a string.".to_string(),
                         span,
                     }),
             }
