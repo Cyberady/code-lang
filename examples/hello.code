@@ -1,1 +1,2 @@
-print(file.read("missing.txt"))
+file.write("examples/out.txt", "Hello!")
+print(file.read("examples/out.txt"))

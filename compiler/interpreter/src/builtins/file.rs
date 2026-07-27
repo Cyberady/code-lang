@@ -71,7 +71,45 @@ pub fn call(
                     }),
             }
         }
-        
+
+        "write" => {
+            if arguments.len() != 2 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.write() expects exactly 2 arguments.".to_string(),
+                    span,
+                });
+            }
+
+            let path = interpreter.evaluate(&arguments[0])?;
+            let contents = interpreter.evaluate(&arguments[1])?;
+
+            match (path, contents) {
+                (Value::String(path), Value::String(contents)) => {
+                    match fs::write(&path, contents) {
+                        Ok(_) => Ok(Value::Null),
+
+                        Err(error) =>
+                            Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            }),
+                    }
+                }
+
+                (Value::String(_), _) =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.write() expects the second argument to be a string.".to_string(),
+                        span,
+                    }),
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.write() expects the first argument to be a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
         _ =>
             Err(InterpreterError::RuntimeError {
                 message: format!("Unknown file method '{}'.", method),
