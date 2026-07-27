@@ -160,6 +160,97 @@ pub fn call(
             }
         }
 
+        "delete" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.delete() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::String(path) => {
+                    match fs::remove_file(&path) {
+                        Ok(_) => Ok(Value::Null),
+
+                        Err(error) =>
+                            Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            }),
+                    }
+                }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.delete() expects a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "list" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.list() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::String(path) => {
+                    let mut entries = Vec::new();
+
+                    let directory = match fs::read_dir(&path) {
+                        Ok(dir) => dir,
+
+                        Err(error) => {
+                            return Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            });
+                        }
+                    };
+
+                    for entry in directory {
+                        let entry = match entry {
+                            Ok(entry) => entry,
+
+                            Err(error) => {
+                                return Err(InterpreterError::RuntimeError {
+                                    message: error.to_string(),
+                                    span,
+                                });
+                            }
+                        };
+
+                        let name = entry.file_name();
+
+                        entries.push(Value::String(name.to_string_lossy().into_owned()));
+                    }
+
+                    entries.sort_by(|a, b| {
+                        match (a, b) {
+                            (Value::String(a), Value::String(b)) => a.cmp(b),
+                            _ => std::cmp::Ordering::Equal,
+                        }
+                    });
+
+                    Ok(Value::Array(entries))
+                }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.list() expects a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
         _ =>
             Err(InterpreterError::RuntimeError {
                 message: format!("Unknown file method '{}'.", method),
