@@ -1,15 +1,18 @@
 //! Parser implementation for the Code programming language.
 
-use lexer::token::{Token, TokenKind};
+use lexer::token::{ Token, TokenKind };
 
 use crate::{
-    ast::{BinaryOperator, Expression, Program, Statement, UnaryOperator},
+    ast::{ BinaryOperator, Expression, Program, Statement, UnaryOperator },
     error::ParserError,
 };
 
 pub struct Parser {
     tokens: Vec<Token>,
     position: usize,
+
+    loop_depth: usize,
+    function_depth: usize,
 }
 
 impl Parser {
@@ -18,6 +21,9 @@ impl Parser {
         Self {
             tokens,
             position: 0,
+
+            loop_depth: 0,
+            function_depth: 0,
         }
     }
 
@@ -63,11 +69,7 @@ impl Parser {
                             return Ok(Statement::Assignment { name, value, span });
                         }
 
-                        Expression::Index {
-                            object,
-                            index,
-                            span,
-                        } => {
+                        Expression::Index { object, index, span } => {
                             return Ok(Statement::IndexAssignment {
                                 object: *object,
                                 index: *index,
@@ -76,11 +78,7 @@ impl Parser {
                             });
                         }
 
-                        Expression::Property {
-                            object,
-                            property,
-                            span,
-                        } => {
+                        Expression::Property { object, property, span } => {
                             return Ok(Statement::PropertyAssignment {
                                 object: *object,
                                 property,
@@ -162,11 +160,17 @@ impl Parser {
 
         self.consume(TokenKind::LeftBrace)?;
 
+        // Enter loop
+        self.loop_depth += 1;
+
         let mut body = Vec::new();
 
         while self.current().kind != TokenKind::RightBrace {
             body.push(self.parse_statement()?);
         }
+
+        // Leave loop
+        self.loop_depth -= 1;
 
         self.consume(TokenKind::RightBrace)?;
 
@@ -190,11 +194,17 @@ impl Parser {
 
         self.consume(TokenKind::LeftBrace)?;
 
+        // Enter loop
+        self.loop_depth += 1;
+
         let mut body = Vec::new();
 
         while self.current().kind != TokenKind::RightBrace {
             body.push(self.parse_statement()?);
         }
+
+        // Leave loop
+        self.loop_depth -= 1;
 
         self.consume(TokenKind::RightBrace)?;
 
@@ -237,13 +247,18 @@ impl Parser {
         // {
         self.consume(TokenKind::LeftBrace)?;
 
+        // Enter function
+        self.function_depth += 1;
+
         let mut body = Vec::new();
 
         while self.current().kind != TokenKind::RightBrace {
             body.push(self.parse_statement()?);
         }
 
-        // }
+        // Leave function
+        self.function_depth -= 1;
+
         self.consume(TokenKind::RightBrace)?;
 
         Ok(Statement::FunctionDeclaration {
@@ -255,9 +270,13 @@ impl Parser {
     }
 
     fn parse_break_statement(&mut self) -> Result<Statement, ParserError> {
-        let span = self.current().span.clone();
+        let span = self.current().span;
 
-        self.advance(); // consume break
+        self.advance();
+
+        if self.loop_depth == 0 {
+            return Err(ParserError::BreakOutsideLoop);
+        }
 
         Ok(Statement::Break { span })
     }
@@ -265,15 +284,23 @@ impl Parser {
     fn parse_continue_statement(&mut self) -> Result<Statement, ParserError> {
         let span = self.current().span;
 
-        self.advance(); // consume continue
+        self.advance();
+
+        if self.loop_depth == 0 {
+            return Err(ParserError::ContinueOutsideLoop);
+        }
 
         Ok(Statement::Continue { span })
     }
 
     fn parse_return_statement(&mut self) -> Result<Statement, ParserError> {
-        let span = self.current().span.clone();
+        let span = self.current().span;
 
-        self.advance(); // consume return
+        self.advance();
+
+        if self.function_depth == 0 {
+            return Err(ParserError::ReturnOutsideFunction);
+        }
 
         let value = self.parse_expression()?;
 
