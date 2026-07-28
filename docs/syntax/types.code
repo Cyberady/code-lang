@@ -1,0 +1,178 @@
+// Types
+//
+// Every value in Code has a type.
+//
+// The built-in types are:
+//
+// • Number
+// • String
+// • Boolean
+// • Array
+// • Object
+// • Null
+
+
+
+// ------------------------------------------------------------
+// Numbers
+// ------------------------------------------------------------
+
+age = 21
+temperature = 36.5
+score = -10
+
+print(age)
+print(temperature)
+print(score)
+
+
+// ------------------------------------------------------------
+// Strings
+// ------------------------------------------------------------
+
+name = "Aditya"
+city = "Mumbai"
+
+print(name)
+print(city)
+
+
+// Strings may span multiple lines.
+
+message = """
+Welcome to Code.
+
+This is a multiline string.
+"""
+
+print(message)
+
+
+// ------------------------------------------------------------
+// Booleans
+// ------------------------------------------------------------
+
+isStudent = true
+isLoggedIn = false
+
+print(isStudent)
+print(isLoggedIn)
+
+
+// ------------------------------------------------------------
+// Arrays
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30]
+
+print(numbers)
+
+letters = [
+    "A",
+    "B",
+    "C"
+]
+
+print(letters)
+
+
+// ------------------------------------------------------------
+// Objects
+// ------------------------------------------------------------
+
+user = {
+    name: "Aditya",
+    age: 21,
+    active: true
+}
+
+print(user)
+
+print(user.name)
+print(user.age)
+print(user.active)
+
+
+// ------------------------------------------------------------
+// Null
+// ------------------------------------------------------------
+
+value = null
+
+print(value)
+
+
+// ------------------------------------------------------------
+// Types Can Change
+// ------------------------------------------------------------
+//
+// Variables are not limited to one type.
+//
+
+item = 100
+print(item)
+
+item = "Laptop"
+print(item)
+
+item = true
+print(item)
+
+item = null
+print(item)
+
+
+// ------------------------------------------------------------
+// Arrays Can Store Mixed Types
+// ------------------------------------------------------------
+
+values = [
+    10,
+    "Hello",
+    true,
+    null
+]
+
+print(values)
+
+
+// ------------------------------------------------------------
+// Objects Can Store Mixed Types
+// ------------------------------------------------------------
+
+profile = {
+    username: "Cyberady",
+    age: 21,
+    verified: true,
+    country: null
+}
+
+print(profile)
+
+
+// ------------------------------------------------------------
+// Combining Different Types
+// ------------------------------------------------------------
+
+person = {
+    name: "Alice",
+    marks: [85, 91, 78],
+    graduated: false
+}
+
+print(person.name)
+print(person.marks)
+print(person.graduated)
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ Number stores numeric values.
+// ✓ String stores text.
+// ✓ Boolean stores true or false.
+// ✓ Array stores an ordered collection.
+// ✓ Object stores named values.
+// ✓ Null represents the absence of a value.
+// ✓ Variables may hold any type of value.

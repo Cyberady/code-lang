@@ -1,0 +1,233 @@
+// For Loops
+//
+// A for loop iterates over every element in a collection.
+//
+// The loop automatically assigns each element to a variable.
+//
+// Syntax:
+//
+// for item in collection {
+//     ...
+// }
+
+
+
+// ------------------------------------------------------------
+// Basic Loop
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30, 40]
+
+for number in numbers {
+    print(number)
+}
+
+
+// ------------------------------------------------------------
+// Strings
+// ------------------------------------------------------------
+
+names = [
+    "Alice",
+    "Bob",
+    "Charlie"
+]
+
+for name in names {
+    print(name)
+}
+
+
+// ------------------------------------------------------------
+// Mixed Values
+// ------------------------------------------------------------
+
+values = [
+    10,
+    "Code",
+    true,
+    null
+]
+
+for value in values {
+    print(value)
+}
+
+
+// ------------------------------------------------------------
+// Objects Inside Arrays
+// ------------------------------------------------------------
+
+students = [
+    {
+        name: "Alice",
+        marks: 92
+    },
+    {
+        name: "Bob",
+        marks: 85
+    },
+    {
+        name: "Charlie",
+        marks: 96
+    }
+]
+
+for student in students {
+    print(student.name)
+    print(student.marks)
+}
+
+
+// ------------------------------------------------------------
+// Arrays Inside Arrays
+// ------------------------------------------------------------
+
+matrix = [
+    [1, 2],
+    [3, 4],
+    [5, 6]
+]
+
+for row in matrix {
+    print(row)
+}
+
+
+// ------------------------------------------------------------
+// Nested For Loops
+// ------------------------------------------------------------
+
+matrix = [
+    [1, 2, 3],
+    [4, 5, 6]
+]
+
+for row in matrix {
+
+    for value in row {
+        print(value)
+    }
+
+}
+
+
+// ------------------------------------------------------------
+// Using Expressions
+// ------------------------------------------------------------
+
+numbers = [5, 10, 15, 20]
+
+for number in numbers {
+    print(number * 2)
+}
+
+
+// ------------------------------------------------------------
+// Building A Total
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30, 40, 50]
+
+total = 0
+
+for number in numbers {
+    total = total + number
+}
+
+print(total)
+
+
+// ------------------------------------------------------------
+// Finding The Largest Value
+// ------------------------------------------------------------
+
+numbers = [25, 12, 48, 31, 19]
+
+largest = numbers[0]
+
+for number in numbers {
+
+    if number > largest {
+        largest = number
+    }
+
+}
+
+print(largest)
+
+
+// ------------------------------------------------------------
+// Using range()
+// ------------------------------------------------------------
+
+for number in range(1, 6) {
+    print(number)
+}
+
+
+// ------------------------------------------------------------
+// Arrays Of Objects
+// ------------------------------------------------------------
+
+employees = [
+    {
+        name: "Alice",
+        department: "Engineering"
+    },
+    {
+        name: "Bob",
+        department: "Design"
+    },
+    {
+        name: "Charlie",
+        department: "Finance"
+    }
+]
+
+for employee in employees {
+    print("{employee.name} works in {employee.department}.")
+}
+
+
+// ------------------------------------------------------------
+// Real World Example
+// ------------------------------------------------------------
+
+shoppingCart = [
+    {
+        name: "Keyboard",
+        price: 1500
+    },
+    {
+        name: "Mouse",
+        price: 700
+    },
+    {
+        name: "Monitor",
+        price: 12000
+    }
+]
+
+total = 0
+
+for item in shoppingCart {
+
+    print(item.name)
+
+    total = total + item.price
+}
+
+print("Total: {total}")
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ for loops iterate over collections.
+// ✓ Each iteration provides one element.
+// ✓ Arrays of any type can be iterated.
+// ✓ Nested loops are supported.
+// ✓ for loops work with range().
+// ✓ for loops are ideal for processing collections.

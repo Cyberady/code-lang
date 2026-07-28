@@ -1,0 +1,188 @@
+// Break And Continue
+//
+// break and continue control the execution of loops.
+//
+// break
+//     Immediately exits the current loop.
+//
+// continue
+//     Skips the current iteration and continues with the next.
+//
+// These statements may be used inside while and for loops.
+
+
+
+// ------------------------------------------------------------
+// break In A While Loop
+// ------------------------------------------------------------
+
+count = 1
+
+while true {
+
+    if count > 5 {
+        break
+    }
+
+    print(count)
+
+    count = count + 1
+}
+
+
+// ------------------------------------------------------------
+// break In A For Loop
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30, 40, 50]
+
+for number in numbers {
+
+    if number == 40 {
+        break
+    }
+
+    print(number)
+}
+
+
+// ------------------------------------------------------------
+// Searching For A Value
+// ------------------------------------------------------------
+
+numbers = [12, 45, 81, 27, 63]
+
+found = false
+
+for number in numbers {
+
+    if number == 81 {
+        found = true
+        break
+    }
+
+}
+
+print(found)
+
+
+// ------------------------------------------------------------
+// continue In A While Loop
+// ------------------------------------------------------------
+
+count = 0
+
+while count < 10 {
+
+    count = count + 1
+
+    if count % 2 == 0 {
+        continue
+    }
+
+    print(count)
+}
+
+
+// ------------------------------------------------------------
+// continue In A For Loop
+// ------------------------------------------------------------
+
+numbers = [1, 2, 3, 4, 5, 6]
+
+for number in numbers {
+
+    if number % 2 == 0 {
+        continue
+    }
+
+    print(number)
+}
+
+
+// ------------------------------------------------------------
+// Ignoring Empty Values
+// ------------------------------------------------------------
+
+values = [
+    "Alice",
+    "",
+    "Bob",
+    "",
+    "Charlie"
+]
+
+for value in values {
+
+    if value == "" {
+        continue
+    }
+
+    print(value)
+}
+
+
+// ------------------------------------------------------------
+// Using break And continue Together
+// ------------------------------------------------------------
+
+numbers = range(1, 11)
+
+for number in numbers {
+
+    if number % 2 == 0 {
+        continue
+    }
+
+    if number > 7 {
+        break
+    }
+
+    print(number)
+}
+
+
+// ------------------------------------------------------------
+// Real World Example
+// ------------------------------------------------------------
+
+users = [
+    {
+        name: "Alice",
+        active: true
+    },
+    {
+        name: "Bob",
+        active: false
+    },
+    {
+        name: "Charlie",
+        active: true
+    }
+]
+
+for user in users {
+
+    if not user.active {
+        continue
+    }
+
+    print(user.name)
+}
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// break
+// • Immediately exits the current loop.
+//
+// continue
+// • Skips the current iteration.
+// • Execution continues with the next iteration.
+//
+// ✓ Both statements work with while loops.
+// ✓ Both statements work with for loops.
+// ✓ Use break when the loop should stop.
+// ✓ Use continue when only the current iteration should be skipped.

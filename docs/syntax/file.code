@@ -1,0 +1,236 @@
+// File
+//
+// The file namespace provides functions for working with files
+// and directories.
+//
+// Functions:
+//
+// file.exists(path)
+// file.read(path)
+// file.write(path, content)
+// file.add(path, content)
+// file.delete(path)
+// file.list(path)
+// file.size(path)
+// file.isFile(path)
+// file.isDirectory(path)
+// file.name(path)
+// file.extension(path)
+// file.parent(path)
+// file.mkdir(path)
+// file.copy(source, destination)
+// file.move(source, destination)
+
+
+
+// ------------------------------------------------------------
+// Checking If A File Exists
+// ------------------------------------------------------------
+
+print(file.exists("notes.txt"))
+print(file.exists("missing.txt"))
+
+
+// ------------------------------------------------------------
+// Writing A File
+// ------------------------------------------------------------
+
+file.write(
+    "hello.txt",
+    "Hello, Code!"
+)
+
+print(file.read("hello.txt"))
+
+
+// ------------------------------------------------------------
+// Reading A File
+// ------------------------------------------------------------
+
+content = file.read("hello.txt")
+
+print(content)
+
+
+// ------------------------------------------------------------
+// Appending To A File
+// ------------------------------------------------------------
+
+file.add(
+    "hello.txt",
+    "\nWelcome to the Code language."
+)
+
+print(file.read("hello.txt"))
+
+
+// ------------------------------------------------------------
+// File Size
+// ------------------------------------------------------------
+
+print(file.size("hello.txt"))
+
+
+// ------------------------------------------------------------
+// File Name
+// ------------------------------------------------------------
+
+print(file.name("hello.txt"))
+
+
+// ------------------------------------------------------------
+// File Extension
+// ------------------------------------------------------------
+
+print(file.extension("hello.txt"))
+
+
+// ------------------------------------------------------------
+// Parent Directory
+// ------------------------------------------------------------
+
+print(file.parent("documents/report.txt"))
+
+
+// ------------------------------------------------------------
+// Creating A Directory
+// ------------------------------------------------------------
+
+file.mkdir("projects")
+
+print(file.isDirectory("projects"))
+
+
+// ------------------------------------------------------------
+// Listing Directory Contents
+// ------------------------------------------------------------
+
+print(file.list("."))
+
+
+// ------------------------------------------------------------
+// Checking File Types
+// ------------------------------------------------------------
+
+print(file.isFile("hello.txt"))
+print(file.isDirectory("hello.txt"))
+
+
+// ------------------------------------------------------------
+// Copying A File
+// ------------------------------------------------------------
+
+file.copy(
+    "hello.txt",
+    "backup.txt"
+)
+
+print(file.exists("backup.txt"))
+
+
+// ------------------------------------------------------------
+// Moving A File
+// ------------------------------------------------------------
+
+file.move(
+    "backup.txt",
+    "archive.txt"
+)
+
+print(file.exists("archive.txt"))
+
+
+// ------------------------------------------------------------
+// Deleting A File
+// ------------------------------------------------------------
+
+file.delete("archive.txt")
+
+print(file.exists("archive.txt"))
+
+
+// ------------------------------------------------------------
+// Creating A Simple Log File
+// ------------------------------------------------------------
+
+file.write(
+    "app.log",
+    "Application Started"
+)
+
+file.add(
+    "app.log",
+    "\nUser Logged In"
+)
+
+file.add(
+    "app.log",
+    "\nApplication Closed"
+)
+
+print(file.read("app.log"))
+
+
+// ------------------------------------------------------------
+// Creating Project Directories
+// ------------------------------------------------------------
+
+file.mkdir("src")
+file.mkdir("docs")
+file.mkdir("tests")
+
+print(file.list("."))
+
+
+// ------------------------------------------------------------
+// Real World Example
+// ------------------------------------------------------------
+
+report = """
+Monthly Report
+
+Revenue: 15000
+Expenses: 9000
+Profit: 6000
+"""
+
+file.write(
+    "report.txt",
+    report
+)
+
+print(file.exists("report.txt"))
+print(file.size("report.txt"))
+print(file.read("report.txt"))
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// File Information
+//
+// file.exists(path)
+// file.size(path)
+// file.name(path)
+// file.extension(path)
+// file.parent(path)
+//
+// Reading And Writing
+//
+// file.read(path)
+// file.write(path, content)
+// file.add(path, content)
+//
+// Directories
+//
+// file.list(path)
+// file.mkdir(path)
+// file.isDirectory(path)
+//
+// File Operations
+//
+// file.copy(source, destination)
+// file.move(source, destination)
+// file.delete(path)
+// file.isFile(path)

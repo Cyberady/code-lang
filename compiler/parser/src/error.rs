@@ -10,11 +10,11 @@ impl std::fmt::Display for ParserError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             ParserError::UnexpectedToken => {
-                write!(f, "Unexpected token.")
+                write!(f, "[E3001]: Unexpected token.")
             }
 
             ParserError::UnexpectedEOF => {
-                write!(f, "Unexpected end of file.")
+                write!(f, "[E3002]: Unexpected end of file.")
             }
         }
     }

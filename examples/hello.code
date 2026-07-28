@@ -1,1 +1,3 @@
-print(file.list("."))
+a = []
+
+print(a[0])

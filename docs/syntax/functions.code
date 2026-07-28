@@ -1,0 +1,309 @@
+// Functions
+//
+// Functions group reusable code into a single block.
+//
+// A function may accept parameters and may return a value.
+//
+// Syntax:
+//
+// func functionName(parameters) {
+//     ...
+// }
+
+
+
+// ------------------------------------------------------------
+// Declaring A Function
+// ------------------------------------------------------------
+
+func greet() {
+    print("Hello, World!")
+}
+
+greet()
+
+
+// ------------------------------------------------------------
+// Functions Can Be Called Multiple Times
+// ------------------------------------------------------------
+
+func welcome() {
+    print("Welcome to Code!")
+}
+
+welcome()
+welcome()
+welcome()
+
+
+// ------------------------------------------------------------
+// Single Parameter
+// ------------------------------------------------------------
+
+func greet(name) {
+    print("Hello, {name}!")
+}
+
+greet("Aditya")
+greet("Alice")
+
+
+// ------------------------------------------------------------
+// Multiple Parameters
+// ------------------------------------------------------------
+
+func introduce(name, age) {
+    print("{name} is {age} years old.")
+}
+
+introduce("John", 21)
+introduce("Sophia", 24)
+
+
+// ------------------------------------------------------------
+// Returning A Value
+// ------------------------------------------------------------
+
+func add(a, b) {
+    return a + b
+}
+
+result = add(10, 20)
+
+print(result)
+
+
+// ------------------------------------------------------------
+// Returning Expressions
+// ------------------------------------------------------------
+
+func square(number) {
+    return number * number
+}
+
+print(square(5))
+print(square(12))
+
+
+// ------------------------------------------------------------
+// Returning Strings
+// ------------------------------------------------------------
+
+func fullName(firstName, lastName) {
+    return "{firstName} {lastName}"
+}
+
+print(fullName("Aditya", "Babar"))
+
+
+// ------------------------------------------------------------
+// Returning Booleans
+// ------------------------------------------------------------
+
+func isAdult(age) {
+    return age >= 18
+}
+
+print(isAdult(16))
+print(isAdult(21))
+
+
+// ------------------------------------------------------------
+// Returning Arrays
+// ------------------------------------------------------------
+
+func numbers() {
+    return [10, 20, 30]
+}
+
+print(numbers())
+
+
+// ------------------------------------------------------------
+// Returning Objects
+// ------------------------------------------------------------
+
+func createUser(name, age) {
+
+    return {
+        name: name,
+        age: age
+    }
+
+}
+
+user = createUser("Alice", 22)
+
+print(user.name)
+print(user.age)
+
+
+// ------------------------------------------------------------
+// Using Local Variables
+// ------------------------------------------------------------
+
+func rectangleArea(width, height) {
+
+    area = width * height
+
+    return area
+}
+
+print(rectangleArea(12, 8))
+
+
+// ------------------------------------------------------------
+// Calling Functions From Functions
+// ------------------------------------------------------------
+
+func multiply(a, b) {
+    return a * b
+}
+
+func cube(number) {
+    return multiply(
+        multiply(number, number),
+        number
+    )
+}
+
+print(cube(3))
+
+
+// ------------------------------------------------------------
+// Early Return
+// ------------------------------------------------------------
+
+func checkAge(age) {
+
+    if age < 18 {
+        return "Access Denied"
+    }
+
+    return "Access Granted"
+
+}
+
+print(checkAge(15))
+print(checkAge(25))
+
+
+// ------------------------------------------------------------
+// Using Loops Inside Functions
+// ------------------------------------------------------------
+
+func total(numbers) {
+
+    sum = 0
+
+    for number in numbers {
+        sum = sum + number
+    }
+
+    return sum
+
+}
+
+scores = [90, 80, 95, 85]
+
+print(total(scores))
+
+
+// ------------------------------------------------------------
+// Functions Working With Objects
+// ------------------------------------------------------------
+
+func displayUser(user) {
+    print(user.name)
+    print(user.age)
+}
+
+displayUser({
+    name: "Aditya",
+    age: 21
+})
+
+
+// ------------------------------------------------------------
+// Functions Working With Arrays
+// ------------------------------------------------------------
+
+func printNumbers(numbers) {
+
+    for number in numbers {
+        print(number)
+    }
+
+}
+
+printNumbers([1, 2, 3, 4, 5])
+
+
+// ------------------------------------------------------------
+// Recursion
+// ------------------------------------------------------------
+
+func factorial(number) {
+
+    if number <= 1 {
+        return 1
+    }
+
+    return number * factorial(number - 1)
+
+}
+
+print(factorial(5))
+
+
+// ------------------------------------------------------------
+// Real World Example
+// ------------------------------------------------------------
+
+func calculateTax(price, rate) {
+
+    tax = price * rate / 100
+
+    return price + tax
+
+}
+
+total = calculateTax(1000, 18)
+
+print(total)
+
+
+// ------------------------------------------------------------
+// Building Small Programs
+// ------------------------------------------------------------
+
+func average(values) {
+
+    sum = 0
+
+    for value in values {
+        sum = sum + value
+    }
+
+    return sum / values.length
+
+}
+
+marks = [82, 91, 78, 95]
+
+print(average(marks))
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ Functions group reusable code.
+// ✓ Functions are declared using 'func'.
+// ✓ Functions may accept parameters.
+// ✓ Functions may return values.
+// ✓ return immediately exits the function.
+// ✓ Functions may call other functions.
+// ✓ Local variables exist only inside the function.
+// ✓ Functions work with arrays and objects.
+// ✓ Functions may be recursive.

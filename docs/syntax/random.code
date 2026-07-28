@@ -1,0 +1,192 @@
+// Random
+//
+// The random namespace generates random values.
+//
+// Functions:
+//
+// random.int(min, max)
+// random.float()
+// random.bool()
+// random.choice(array)
+
+
+
+// ------------------------------------------------------------
+// Random Integer
+// ------------------------------------------------------------
+
+print(random.int(1, 10))
+print(random.int(50, 100))
+
+
+// ------------------------------------------------------------
+// Random Floating-Point Number
+// ------------------------------------------------------------
+
+print(random.float())
+print(random.float())
+
+
+// ------------------------------------------------------------
+// Random Boolean
+// ------------------------------------------------------------
+
+print(random.bool())
+print(random.bool())
+
+
+// ------------------------------------------------------------
+// Random Array Element
+// ------------------------------------------------------------
+
+colours = [
+    "Red",
+    "Green",
+    "Blue",
+    "Yellow"
+]
+
+print(random.choice(colours))
+
+
+// ------------------------------------------------------------
+// Rolling A Dice
+// ------------------------------------------------------------
+
+dice = random.int(1, 6)
+
+print(dice)
+
+
+// ------------------------------------------------------------
+// Flipping A Coin
+// ------------------------------------------------------------
+
+if random.bool() {
+    print("Heads")
+} else {
+    print("Tails")
+}
+
+
+// ------------------------------------------------------------
+// Picking A Winner
+// ------------------------------------------------------------
+
+players = [
+    "Alice",
+    "Bob",
+    "Charlie",
+    "Sophia"
+]
+
+winner = random.choice(players)
+
+print("Winner: {winner}")
+
+
+// ------------------------------------------------------------
+// Random Password Digits
+// ------------------------------------------------------------
+
+password = ""
+
+for number in range(1, 7) {
+    password = "{password}{random.int(0, 9)}"
+}
+
+print(password)
+
+
+// ------------------------------------------------------------
+// Lottery Numbers
+// ------------------------------------------------------------
+
+for number in range(1, 7) {
+    print(random.int(1, 50))
+}
+
+
+// ------------------------------------------------------------
+// Random Enemy Health
+// ------------------------------------------------------------
+
+enemy = {
+    name: "Goblin",
+    health: random.int(80, 120)
+}
+
+print(enemy.name)
+print(enemy.health)
+
+
+// ------------------------------------------------------------
+// Random Damage
+// ------------------------------------------------------------
+
+damage = random.int(15, 30)
+
+print("Damage: {damage}")
+
+
+// ------------------------------------------------------------
+// Random Grade
+// ------------------------------------------------------------
+
+grades = [
+    "A",
+    "B",
+    "C",
+    "D",
+    "F"
+]
+
+print(random.choice(grades))
+
+
+// ------------------------------------------------------------
+// Random Greeting
+// ------------------------------------------------------------
+
+greetings = [
+    "Hello!",
+    "Welcome!",
+    "Good Morning!",
+    "Have a Great Day!"
+]
+
+print(random.choice(greetings))
+
+
+// ------------------------------------------------------------
+// Real World Example
+// ------------------------------------------------------------
+
+quotes = [
+    "Keep learning.",
+    "Never give up.",
+    "Dream big.",
+    "Stay curious."
+]
+
+quote = random.choice(quotes)
+
+print("Quote of the Day")
+print(quote)
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// random.int(min, max)
+//     Returns a random integer.
+//
+// random.float()
+//     Returns a random floating-point number.
+//
+// random.bool()
+//     Returns either true or false.
+//
+// random.choice(array)
+//     Returns a random element from an array.

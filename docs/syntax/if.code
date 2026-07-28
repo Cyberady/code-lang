@@ -1,0 +1,218 @@
+// If Statements
+//
+// An if statement executes a block of code only when its
+// condition evaluates to true.
+//
+// Syntax:
+//
+// if condition {
+//     ...
+// }
+
+
+
+// ------------------------------------------------------------
+// Basic If Statement
+// ------------------------------------------------------------
+
+age = 20
+
+if age >= 18 {
+    print("You are an adult.")
+}
+
+
+// ------------------------------------------------------------
+// Conditions That Evaluate To False
+// ------------------------------------------------------------
+
+age = 15
+
+if age >= 18 {
+    print("You can vote.")
+}
+
+
+// ------------------------------------------------------------
+// If / Else
+// ------------------------------------------------------------
+
+marks = 75
+
+if marks >= 40 {
+    print("Pass")
+} else {
+    print("Fail")
+}
+
+
+// ------------------------------------------------------------
+// Another If / Else Example
+// ------------------------------------------------------------
+
+temperature = 30
+
+if temperature > 25 {
+    print("It's a warm day.")
+} else {
+    print("It's a cool day.")
+}
+
+
+// ------------------------------------------------------------
+// Else If
+// ------------------------------------------------------------
+
+marks = 82
+
+if marks >= 90 {
+    print("Grade A")
+} else if marks >= 75 {
+    print("Grade B")
+} else if marks >= 60 {
+    print("Grade C")
+} else {
+    print("Grade D")
+}
+
+
+// ------------------------------------------------------------
+// Comparison Operators
+// ------------------------------------------------------------
+
+value = 10
+
+if value == 10 {
+    print("Equal")
+}
+
+if value != 20 {
+    print("Not Equal")
+}
+
+if value < 20 {
+    print("Less Than")
+}
+
+if value <= 10 {
+    print("Less Than Or Equal")
+}
+
+if value > 5 {
+    print("Greater Than")
+}
+
+if value >= 10 {
+    print("Greater Than Or Equal")
+}
+
+
+// ------------------------------------------------------------
+// Using Logical Operators
+// ------------------------------------------------------------
+
+age = 22
+citizen = true
+
+if age >= 18 and citizen {
+    print("Eligible to vote.")
+}
+
+
+// ------------------------------------------------------------
+// Using OR
+// ------------------------------------------------------------
+
+day = "Saturday"
+
+if day == "Saturday" or day == "Sunday" {
+    print("Weekend")
+}
+
+
+// ------------------------------------------------------------
+// Using NOT
+// ------------------------------------------------------------
+
+loggedIn = false
+
+if not loggedIn {
+    print("Please sign in.")
+}
+
+
+// ------------------------------------------------------------
+// Variables In Conditions
+// ------------------------------------------------------------
+
+score = 95
+passingScore = 40
+
+if score >= passingScore {
+    print("Exam passed.")
+}
+
+
+// ------------------------------------------------------------
+// Object Properties
+// ------------------------------------------------------------
+
+user = {
+    name: "Aditya",
+    verified: true
+}
+
+if user.verified {
+    print("{user.name} is verified.")
+}
+
+
+// ------------------------------------------------------------
+// Array Values
+// ------------------------------------------------------------
+
+numbers = [5, 10, 15]
+
+if numbers[0] == 5 {
+    print("First value is correct.")
+}
+
+
+// ------------------------------------------------------------
+// Nested If Statements
+// ------------------------------------------------------------
+
+age = 25
+member = true
+
+if age >= 18 {
+    if member {
+        print("Access granted.")
+    }
+}
+
+
+// ------------------------------------------------------------
+// Real World Example
+// ------------------------------------------------------------
+
+username = "Cyberady"
+password = "123456"
+
+if username == "Cyberady" and password == "123456" {
+    print("Login successful.")
+} else {
+    print("Invalid username or password.")
+}
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ if executes code when a condition is true.
+// ✓ else executes when the condition is false.
+// ✓ else if checks additional conditions.
+// ✓ Conditions use comparison operators.
+// ✓ Logical operators can combine conditions.
+// ✓ if statements may be nested.

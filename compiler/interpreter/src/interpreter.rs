@@ -866,7 +866,7 @@ impl<'a> Interpreter<'a> {
         match error {
             InterpreterError::UndefinedVariable { name, span } =>
                 Diagnostic {
-                    code: "E0001",
+                    code: "E1001",
 
                     title: "Undefined Variable".to_string(),
 
@@ -885,7 +885,7 @@ impl<'a> Interpreter<'a> {
 
             InterpreterError::CannotAssignConstant { name, span } =>
                 Diagnostic {
-                    code: "E0002",
+                    code: "E1002",
 
                     title: "Cannot Assign to Constant".to_string(),
 
@@ -904,7 +904,7 @@ impl<'a> Interpreter<'a> {
 
             InterpreterError::InvalidBinaryOperation { operator, span } =>
                 Diagnostic {
-                    code: "E0003",
+                    code: "E1003",
 
                     title: "Invalid Operation".to_string(),
 
@@ -923,7 +923,7 @@ impl<'a> Interpreter<'a> {
 
             InterpreterError::RuntimeError { message, span } =>
                 Diagnostic {
-                    code: "E0004",
+                    code: "E1004",
 
                     title: "Runtime Error".to_string(),
 

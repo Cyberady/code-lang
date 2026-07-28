@@ -1,0 +1,227 @@
+// Strings
+//
+// Strings store text.
+//
+// A string is created by surrounding text with single quotes,
+// double quotes or triple quotes.
+//
+// Syntax:
+//
+// "Hello"
+// 'Hello'
+// """
+// Hello
+// """
+
+
+
+// ------------------------------------------------------------
+// Creating Strings
+// ------------------------------------------------------------
+
+firstName = "Aditya"
+lastName = 'Babar'
+
+print(firstName)
+print(lastName)
+
+
+// ------------------------------------------------------------
+// Empty Strings
+// ------------------------------------------------------------
+
+empty = ""
+
+print(empty)
+
+
+// ------------------------------------------------------------
+// Multiline Strings
+// ------------------------------------------------------------
+
+message = """
+Welcome to Code.
+
+This text spans
+multiple lines.
+"""
+
+print(message)
+
+
+// ------------------------------------------------------------
+// Strings Can Be Stored In Variables
+// ------------------------------------------------------------
+
+language = "Code"
+
+print(language)
+
+
+// ------------------------------------------------------------
+// Strings Can Be Assigned To Other Variables
+// ------------------------------------------------------------
+
+original = "Hello"
+
+copy = original
+
+print(copy)
+
+
+// ------------------------------------------------------------
+// Strings Inside Arrays
+// ------------------------------------------------------------
+
+fruits = [
+    "Apple",
+    "Banana",
+    "Orange"
+]
+
+print(fruits)
+
+
+// ------------------------------------------------------------
+// Strings Inside Objects
+// ------------------------------------------------------------
+
+user = {
+    firstName: "John",
+    lastName: "Smith"
+}
+
+print(user.firstName)
+print(user.lastName)
+
+
+// ------------------------------------------------------------
+// upper()
+// ------------------------------------------------------------
+
+text = "hello world"
+
+print(text.upper())
+
+
+// ------------------------------------------------------------
+// lower()
+// ------------------------------------------------------------
+
+text = "HELLO WORLD"
+
+print(text.lower())
+
+
+// ------------------------------------------------------------
+// trim()
+// ------------------------------------------------------------
+
+text = "   Code Language   "
+
+print(text.trim())
+
+
+// ------------------------------------------------------------
+// contains()
+// ------------------------------------------------------------
+
+text = "Welcome to Code"
+
+print(text.contains("Code"))
+print(text.contains("Python"))
+
+
+// ------------------------------------------------------------
+// startsWith()
+// ------------------------------------------------------------
+
+text = "Code Language"
+
+print(text.startsWith("Code"))
+print(text.startsWith("Language"))
+
+
+// ------------------------------------------------------------
+// endsWith()
+// ------------------------------------------------------------
+
+text = "documentation.md"
+
+print(text.endsWith(".md"))
+print(text.endsWith(".txt"))
+
+
+// ------------------------------------------------------------
+// replace()
+// ------------------------------------------------------------
+
+text = "Hello World"
+
+print(text.replace("World", "Code"))
+
+
+// ------------------------------------------------------------
+// split()
+// ------------------------------------------------------------
+
+text = "Red,Green,Blue"
+
+print(text.split(","))
+
+
+// ------------------------------------------------------------
+// reverse()
+// ------------------------------------------------------------
+
+text = "Code"
+
+print(text.reverse())
+
+
+// ------------------------------------------------------------
+// length
+// ------------------------------------------------------------
+
+text = "Programming"
+
+print(text.length)
+
+
+// ------------------------------------------------------------
+// Chaining Methods
+// ------------------------------------------------------------
+
+text = "   hello code   "
+
+result = text.trim().upper()
+
+print(result)
+
+
+// ------------------------------------------------------------
+// Strings Are Immutable
+// ------------------------------------------------------------
+//
+// String methods return new strings.
+//
+
+text = "hello"
+
+upperText = text.upper()
+
+print(text)
+print(upperText)
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ Strings store text.
+// ✓ Strings can use single quotes.
+// ✓ Strings can use double quotes.
+// ✓ Triple quotes create multiline strings.
+// ✓ Strings provide useful built-in methods.
+// ✓ The length property returns the number of characters.
+// ✓ String methods return new strings.

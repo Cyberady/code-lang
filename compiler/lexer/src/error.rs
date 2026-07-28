@@ -8,36 +8,41 @@ use crate::span::Span;
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum LexerError {
     /// An unexpected character was encountered.
-    UnexpectedCharacter { character: char, span: Span },
+    UnexpectedCharacter {
+        character: char,
+        span: Span,
+    },
 
     /// A string literal was not properly closed.
-    UnterminatedString { span: Span },
+    UnterminatedString {
+        span: Span,
+    },
 
     /// A block comment was not properly closed.
-    UnterminatedComment { span: Span },
+    UnterminatedComment {
+        span: Span,
+    },
 
     /// An invalid numeric literal was encountered.
-    InvalidNumber { span: Span },
+    InvalidNumber {
+        span: Span,
+    },
 }
 
 impl std::fmt::Display for LexerError {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             LexerError::UnexpectedCharacter { character, .. } => {
-                write!(f, "Unexpected character '{}'.", character)
+                write!(f, "[E2001]: Unexpected character '{}'.", character)
             }
 
             LexerError::UnterminatedString { .. } => {
-                write!(f, "Unterminated string literal.")
+                write!(f, "[E2002]: Unterminated string literal.")
             }
 
-            LexerError::UnterminatedComment { .. } => {
-                write!(f, "Unterminated block comment.")
-            }
+            LexerError::UnterminatedComment { .. } => { write!(f, "[E2003]: Unterminated block comment.") }
 
-            LexerError::InvalidNumber { .. } => {
-                write!(f, "Invalid numeric literal.")
-            }
+            LexerError::InvalidNumber { .. } => { write!(f, "[E2004]: Invalid numeric literal.") }
         }
     }
 }

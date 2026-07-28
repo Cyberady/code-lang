@@ -1,0 +1,179 @@
+// Constants
+//
+// Constants store values that cannot be changed after they are
+// created.
+//
+// Use the 'const' keyword when a value should remain the same
+// throughout the lifetime of the program.
+//
+// Syntax:
+//
+// const name = value
+
+
+
+// ------------------------------------------------------------
+// Creating Constants
+// ------------------------------------------------------------
+
+const pi = 3.14159265359
+const language = "Code"
+const isReleased = false
+
+print(pi)
+print(language)
+print(isReleased)
+
+
+// ------------------------------------------------------------
+// Constants Can Store Any Value
+// ------------------------------------------------------------
+
+const maximumScore = 100
+
+const colours = [
+    "Red",
+    "Green",
+    "Blue"
+]
+
+const developer = {
+    name: "Aditya",
+    language: "Code"
+}
+
+print(maximumScore)
+print(colours)
+print(developer)
+
+
+// ------------------------------------------------------------
+// Constants Can Be Used In Expressions
+// ------------------------------------------------------------
+
+const width = 1920
+const height = 1080
+
+pixels = width * height
+
+print(pixels)
+
+
+// ------------------------------------------------------------
+// Constants Can Be Used With Variables
+// ------------------------------------------------------------
+
+const taxRate = 18
+
+price = 1000
+tax = price * taxRate / 100
+total = price + tax
+
+print(price)
+print(tax)
+print(total)
+
+
+// ------------------------------------------------------------
+// Constants Can Be Passed To Functions
+// ------------------------------------------------------------
+
+const numbers = range(1, 6)
+
+print(numbers)
+
+print(numbers.length)
+
+
+// ------------------------------------------------------------
+// Constants Work With String Interpolation
+// ------------------------------------------------------------
+
+const version = 1
+
+print("Code Language v{version}")
+
+
+// ------------------------------------------------------------
+// Naming Constants
+// ------------------------------------------------------------
+//
+// Constants should have meaningful names.
+//
+
+const gravity = 9.81
+const companyName = "OpenAI"
+const maxRetries = 3
+
+print(gravity)
+print(companyName)
+print(maxRetries)
+
+
+// ------------------------------------------------------------
+// Constants Cannot Be Reassigned
+// ------------------------------------------------------------
+//
+// The following example is intentionally commented out because
+// it produces an error.
+//
+// See docs/errors/E0002.code for the complete explanation.
+//
+
+// const pi = 3.14159
+// pi = 4
+//
+// Error:
+// Cannot assign to constant.
+
+
+// ------------------------------------------------------------
+// Variables And Constants
+// ------------------------------------------------------------
+
+const appName = "Code"
+
+visits = 0
+
+print(appName)
+print(visits)
+
+visits = visits + 1
+visits = visits + 1
+
+print(visits)
+
+
+// ------------------------------------------------------------
+// When To Use Constants
+// ------------------------------------------------------------
+//
+// Use constants for values that never change.
+//
+// Examples:
+//
+// • Mathematical constants
+// • Configuration values
+// • Application names
+// • Version numbers
+// • Limits
+//
+
+const appVersion = "1.0.0"
+const secondsPerMinute = 60
+const maxPlayers = 4
+
+print(appVersion)
+print(secondsPerMinute)
+print(maxPlayers)
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ Constants are declared using 'const'.
+// ✓ Constants cannot be reassigned.
+// ✓ Constants can store any value.
+// ✓ Constants can be used in expressions.
+// ✓ Use constants for values that should never change.

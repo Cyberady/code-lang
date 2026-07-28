@@ -1,0 +1,322 @@
+// Arrays
+//
+// Arrays store an ordered collection of values.
+//
+// Values are accessed using their index.
+// The first element always has an index of 0.
+//
+// Syntax:
+//
+// values = [1, 2, 3]
+
+
+
+// ------------------------------------------------------------
+// Creating Arrays
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30]
+
+print(numbers)
+
+letters = ["A", "B", "C"]
+
+print(letters)
+
+mixed = [10, "Code", true, null]
+
+print(mixed)
+
+
+// ------------------------------------------------------------
+// Empty Arrays
+// ------------------------------------------------------------
+
+empty = []
+
+print(empty)
+
+print(empty.length)
+
+
+// ------------------------------------------------------------
+// Reading Elements
+// ------------------------------------------------------------
+
+numbers = [100, 200, 300, 400]
+
+print(numbers[0])
+print(numbers[1])
+print(numbers[2])
+print(numbers[3])
+
+
+// ------------------------------------------------------------
+// Updating Elements
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30]
+
+print(numbers)
+
+numbers[1] = 99
+
+print(numbers)
+
+numbers[0] = 50
+
+print(numbers)
+
+
+// ------------------------------------------------------------
+// Arrays Can Store Variables
+// ------------------------------------------------------------
+
+first = 5
+second = 10
+
+values = [first, second]
+
+print(values)
+
+
+// ------------------------------------------------------------
+// Arrays Can Store Expressions
+// ------------------------------------------------------------
+
+numbers = [
+    10 + 5,
+    20 * 2,
+    100 / 4
+]
+
+print(numbers)
+
+
+// ------------------------------------------------------------
+// Arrays Can Store Objects
+// ------------------------------------------------------------
+
+users = [
+    {
+        name: "Alice",
+        age: 22
+    },
+    {
+        name: "Bob",
+        age: 25
+    }
+]
+
+print(users)
+
+print(users[0].name)
+print(users[1].age)
+
+
+// ------------------------------------------------------------
+// Arrays Can Store Arrays
+// ------------------------------------------------------------
+
+matrix = [
+    [1, 2],
+    [3, 4]
+]
+
+print(matrix)
+
+print(matrix[0])
+print(matrix[1])
+
+print(matrix[0][0])
+print(matrix[1][1])
+
+
+// ------------------------------------------------------------
+// length
+// ------------------------------------------------------------
+
+numbers = [5, 10, 15, 20]
+
+print(numbers.length)
+
+
+// ------------------------------------------------------------
+// add(value)
+// ------------------------------------------------------------
+
+numbers = [1, 2, 3]
+
+numbers.add(4)
+
+print(numbers)
+
+numbers.add(5)
+
+print(numbers)
+
+
+// ------------------------------------------------------------
+// add(index, value)
+// ------------------------------------------------------------
+
+numbers = [10, 20, 40]
+
+numbers.add(2, 30)
+
+print(numbers)
+
+
+// ------------------------------------------------------------
+// remove()
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30]
+
+numbers.remove()
+
+print(numbers)
+
+
+// ------------------------------------------------------------
+// remove(index)
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30, 40]
+
+numbers.remove(1)
+
+print(numbers)
+
+
+// ------------------------------------------------------------
+// contains()
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30]
+
+print(numbers.contains(20))
+print(numbers.contains(99))
+
+
+// ------------------------------------------------------------
+// first()
+// ------------------------------------------------------------
+
+numbers = [5, 10, 15]
+
+print(numbers.first())
+
+
+// ------------------------------------------------------------
+// last()
+// ------------------------------------------------------------
+
+numbers = [5, 10, 15]
+
+print(numbers.last())
+
+
+// ------------------------------------------------------------
+// reverse()
+// ------------------------------------------------------------
+
+numbers = [1, 2, 3, 4]
+
+numbers.reverse()
+
+print(numbers)
+
+
+// ------------------------------------------------------------
+// sort()
+// ------------------------------------------------------------
+
+numbers = [9, 2, 7, 1, 5]
+
+numbers.sort()
+
+print(numbers)
+
+
+// ------------------------------------------------------------
+// clear()
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30]
+
+numbers.clear()
+
+print(numbers)
+
+print(numbers.length)
+
+
+// ------------------------------------------------------------
+// isEmpty()
+// ------------------------------------------------------------
+
+numbers = []
+
+print(numbers.isEmpty())
+
+numbers.add(10)
+
+print(numbers.isEmpty())
+
+
+// ------------------------------------------------------------
+// Iterating Over Arrays
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30, 40]
+
+for number in numbers {
+    print(number)
+}
+
+
+// ------------------------------------------------------------
+// Combining Array Methods
+// ------------------------------------------------------------
+
+scores = []
+
+scores.add(90)
+scores.add(85)
+scores.add(95)
+
+scores.sort()
+
+print(scores.first())
+print(scores.last())
+print(scores.length)
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ Arrays store ordered collections.
+// ✓ Array indexes start at 0.
+// ✓ Elements are accessed using [index].
+// ✓ Elements can be updated.
+// ✓ Arrays can store any type.
+// ✓ Arrays may contain other arrays.
+// ✓ Arrays may contain objects.
+// ✓ Use length to get the number of elements.
+// ✓ Arrays provide useful built-in methods.
+//
+// Methods:
+//
+// add(value)
+// add(index, value)
+// remove()
+// remove(index)
+// contains(value)
+// first()
+// last()
+// reverse()
+// sort()
+// clear()
+// isEmpty()

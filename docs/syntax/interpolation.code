@@ -1,0 +1,177 @@
+// String Interpolation
+//
+// String interpolation allows expressions to be embedded directly
+// inside a string.
+//
+// Expressions are surrounded by curly braces.
+//
+// Syntax:
+//
+// "{expression}"
+
+
+
+// ------------------------------------------------------------
+// Variables
+// ------------------------------------------------------------
+
+name = "Aditya"
+
+print("Hello {name}")
+
+
+// ------------------------------------------------------------
+// Multiple Variables
+// ------------------------------------------------------------
+
+firstName = "Aditya"
+lastName = "Babar"
+
+print("Welcome {firstName} {lastName}")
+
+
+// ------------------------------------------------------------
+// Numbers
+// ------------------------------------------------------------
+
+age = 21
+height = 175.5
+
+print("Age: {age}")
+print("Height: {height}")
+
+
+// ------------------------------------------------------------
+// Boolean Values
+// ------------------------------------------------------------
+
+isStudent = true
+
+print("Student: {isStudent}")
+
+
+// ------------------------------------------------------------
+// Null Values
+// ------------------------------------------------------------
+
+value = null
+
+print("Value: {value}")
+
+
+// ------------------------------------------------------------
+// Expressions
+// ------------------------------------------------------------
+
+a = 10
+b = 20
+
+print("{a} + {b} = {a + b}")
+print("{a} × {b} = {a * b}")
+
+
+// ------------------------------------------------------------
+// Parentheses
+// ------------------------------------------------------------
+
+x = 5
+y = 3
+
+print("Result: {(x + y) * 2}")
+
+
+// ------------------------------------------------------------
+// Function Results
+// ------------------------------------------------------------
+
+numbers = range(1, 6)
+
+print("Numbers: {numbers}")
+print("Count: {numbers.length}")
+
+
+// ------------------------------------------------------------
+// Object Properties
+// ------------------------------------------------------------
+
+user = {
+    name: "Alice",
+    age: 25
+}
+
+print("{user.name} is {user.age} years old.")
+
+
+// ------------------------------------------------------------
+// Array Elements
+// ------------------------------------------------------------
+
+letters = [
+    "A",
+    "B",
+    "C"
+]
+
+print("First letter: {letters[0]}")
+print("Last letter: {letters[2]}")
+
+
+/ ------------------------------------------------------------
+// Method Calls
+// ------------------------------------------------------------
+
+language = "code"
+
+print("{language.upper()}")
+print("{language.reverse()}")
+
+
+// ------------------------------------------------------------
+// Multiple Expressions
+// ------------------------------------------------------------
+
+price = 1500
+tax = 270
+
+print("Price: {price}")
+print("Tax: {tax}")
+print("Total: {price + tax}")
+
+
+// ------------------------------------------------------------
+// Building Sentences
+// ------------------------------------------------------------
+
+name = "John"
+city = "London"
+age = 24
+
+print("{name} lives in {city} and is {age} years old.")
+
+
+// ------------------------------------------------------------
+// Complex Example
+// ------------------------------------------------------------
+
+student = {
+    name: "Sophia",
+    marks: [82, 91, 88]
+}
+
+print("Student: {student.name}")
+print("First Mark: {student.marks[0]}")
+print("Total Subjects: {student.marks.length}")
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ Use {expression} inside strings.
+// ✓ Variables can be interpolated.
+// ✓ Arithmetic expressions are supported.
+// ✓ Object properties are supported.
+// ✓ Array indexing is supported.
+// ✓ Method calls are supported.
+// ✓ Function results can be interpolated.
+// ✓ Multiple expressions may appear in one string.

@@ -1,0 +1,203 @@
+// Variables
+//
+// Variables store values that can be used throughout a program.
+//
+// A variable is created automatically the first time a value is
+// assigned to it.
+//
+// Syntax:
+//
+// name = value
+
+
+
+// ------------------------------------------------------------
+// Creating Variables
+// ------------------------------------------------------------
+
+name = "Aditya"
+age = 21
+height = 175.5
+student = true
+
+print(name)
+print(age)
+print(height)
+print(student)
+
+
+// ------------------------------------------------------------
+// Updating Variables
+// ------------------------------------------------------------
+
+score = 10
+
+print(score)
+
+score = 25
+
+print(score)
+
+score = score + 75
+
+print(score)
+
+
+// ------------------------------------------------------------
+// Variables Can Store Different Types
+// ------------------------------------------------------------
+
+value = 42
+print(value)
+
+value = "Hello, Code!"
+print(value)
+
+value = false
+print(value)
+
+value = null
+print(value)
+
+
+// ------------------------------------------------------------
+// Using Variables In Expressions
+// ------------------------------------------------------------
+
+a = 15
+b = 5
+
+sum = a + b
+difference = a - b
+product = a * b
+quotient = a / b
+
+print(sum)
+print(difference)
+print(product)
+print(quotient)
+
+
+// ------------------------------------------------------------
+// Copying Values
+// ------------------------------------------------------------
+
+firstName = "Aditya"
+displayName = firstName
+
+print(displayName)
+
+
+// ------------------------------------------------------------
+// Arrays Can Be Stored In Variables
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30]
+
+print(numbers)
+
+numbers.add(40)
+
+print(numbers)
+
+
+// ------------------------------------------------------------
+// Objects Can Be Stored In Variables
+// ------------------------------------------------------------
+
+person = {
+    name: "Aditya",
+    age: 21
+}
+
+print(person.name)
+print(person.age)
+
+person.age = 22
+
+print(person.age)
+
+
+// ------------------------------------------------------------
+// Variables Can Store Function Results
+// ------------------------------------------------------------
+
+values = range(1, 6)
+
+print(values)
+
+count = values.length
+
+print(count)
+
+
+// ------------------------------------------------------------
+// Variables Work With String Interpolation
+// ------------------------------------------------------------
+
+language = "Code"
+version = 1
+
+print("Welcome to {language}")
+print("Version {version}")
+
+
+// ------------------------------------------------------------
+// Variable Names
+// ------------------------------------------------------------
+//
+// Good variable names describe what the value represents.
+//
+
+userName = "Cyberady"
+totalMarks = 489
+isLoggedIn = true
+
+print(userName)
+print(totalMarks)
+print(isLoggedIn)
+
+
+// Variable names may contain:
+//
+// • Letters
+// • Numbers (not as the first character)
+// • Underscores
+
+player1 = "Knight"
+user_name = "Alice"
+total_score = 500
+
+print(player1)
+print(user_name)
+print(total_score)
+
+
+// ------------------------------------------------------------
+// Reassigning Variables
+// ------------------------------------------------------------
+
+counter = 0
+
+print(counter)
+
+counter = counter + 1
+print(counter)
+
+counter = counter + 1
+print(counter)
+
+counter = counter + 1
+print(counter)
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ Variables are created automatically when first assigned.
+// ✓ Variables are mutable.
+// ✓ Variables can store any value.
+// ✓ Variables may be reassigned.
+// ✓ Variables can be used in expressions.
+// ✓ Choose meaningful names.

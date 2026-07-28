@@ -251,6 +251,303 @@ pub fn call(
             }
         }
 
+        "size" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.size() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::String(path) => {
+                    match fs::metadata(&path) {
+                        Ok(metadata) => Ok(Value::Number(metadata.len() as f64)),
+
+                        Err(error) =>
+                            Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            }),
+                    }
+                }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.size() expects a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "isFile" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.isFile() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::String(path) => {
+                    match fs::metadata(&path) {
+                        Ok(metadata) => Ok(Value::Boolean(metadata.is_file())),
+
+                        Err(error) =>
+                            Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            }),
+                    }
+                }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.isFile() expects a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "isDirectory" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.isDirectory() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::String(path) => {
+                    match fs::metadata(&path) {
+                        Ok(metadata) => Ok(Value::Boolean(metadata.is_dir())),
+
+                        Err(error) =>
+                            Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            }),
+                    }
+                }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.isDirectory() expects a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "name" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.name() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::String(path) => {
+                    let path = Path::new(&path);
+
+                    match path.file_name() {
+                        Some(name) => { Ok(Value::String(name.to_string_lossy().into_owned())) }
+
+                        None => Ok(Value::Null),
+                    }
+                }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.name() expects a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "extension" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.extension() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::String(path) => {
+                    let path = Path::new(&path);
+
+                    match path.extension() {
+                        Some(extension) => {
+                            Ok(Value::String(extension.to_string_lossy().into_owned()))
+                        }
+
+                        None => Ok(Value::Null),
+                    }
+                }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.extension() expects a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "parent" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.parent() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::String(path) => {
+                    let path = Path::new(&path);
+
+                    match path.parent() {
+                        Some(parent) => {
+                            let parent = parent.to_string_lossy().into_owned();
+
+                            if parent.is_empty() {
+                                Ok(Value::Null)
+                            } else {
+                                Ok(Value::String(parent))
+                            }
+                        }
+
+                        None => Ok(Value::Null),
+                    }
+                }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.parent() expects a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "mkdir" => {
+            if arguments.len() != 1 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.mkdir() expects exactly 1 argument.".to_string(),
+                    span,
+                });
+            }
+
+            let value = interpreter.evaluate(&arguments[0])?;
+
+            match value {
+                Value::String(path) => {
+                    match fs::create_dir(&path) {
+                        Ok(_) => Ok(Value::Null),
+
+                        Err(error) =>
+                            Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            }),
+                    }
+                }
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.mkdir() expects a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "copy" => {
+            if arguments.len() != 2 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.copy() expects exactly 2 arguments.".to_string(),
+                    span,
+                });
+            }
+
+            let source = interpreter.evaluate(&arguments[0])?;
+            let destination = interpreter.evaluate(&arguments[1])?;
+
+            match (source, destination) {
+                (Value::String(source), Value::String(destination)) => {
+                    match fs::copy(&source, &destination) {
+                        Ok(_) => Ok(Value::Null),
+
+                        Err(error) =>
+                            Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            }),
+                    }
+                }
+
+                (Value::String(_), _) =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.copy() expects the second argument to be a string.".to_string(),
+                        span,
+                    }),
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.copy() expects the first argument to be a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
+        "move" => {
+            if arguments.len() != 2 {
+                return Err(InterpreterError::RuntimeError {
+                    message: "file.move() expects exactly 2 arguments.".to_string(),
+                    span,
+                });
+            }
+
+            let source = interpreter.evaluate(&arguments[0])?;
+            let destination = interpreter.evaluate(&arguments[1])?;
+
+            match (source, destination) {
+                (Value::String(source), Value::String(destination)) => {
+                    match fs::rename(&source, &destination) {
+                        Ok(_) => Ok(Value::Null),
+
+                        Err(error) =>
+                            Err(InterpreterError::RuntimeError {
+                                message: error.to_string(),
+                                span,
+                            }),
+                    }
+                }
+
+                (Value::String(_), _) =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.move() expects the second argument to be a string.".to_string(),
+                        span,
+                    }),
+
+                _ =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "file.move() expects the first argument to be a string.".to_string(),
+                        span,
+                    }),
+            }
+        }
+
         _ =>
             Err(InterpreterError::RuntimeError {
                 message: format!("Unknown file method '{}'.", method),

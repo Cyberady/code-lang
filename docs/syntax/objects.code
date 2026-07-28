@@ -1,0 +1,242 @@
+// Objects
+//
+// Objects store related values using named properties.
+//
+// Properties are accessed using dot notation.
+//
+// Syntax:
+//
+// object = {
+//     property: value
+// }
+
+
+
+// ------------------------------------------------------------
+// Creating Objects
+// ------------------------------------------------------------
+
+person = {
+    name: "Aditya",
+    age: 21,
+    student: true
+}
+
+print(person)
+
+
+// ------------------------------------------------------------
+// Reading Properties
+// ------------------------------------------------------------
+
+print(person.name)
+print(person.age)
+print(person.student)
+
+
+// ------------------------------------------------------------
+// Updating Properties
+// ------------------------------------------------------------
+
+person.age = 22
+
+print(person.age)
+
+person.name = "Cyberady"
+
+print(person.name)
+
+
+// ------------------------------------------------------------
+// Objects Can Store Different Types
+// ------------------------------------------------------------
+
+settings = {
+    volume: 80,
+    theme: "Dark",
+    notifications: true,
+    language: null
+}
+
+print(settings)
+
+
+// ------------------------------------------------------------
+// Objects Can Store Arrays
+// ------------------------------------------------------------
+
+student = {
+    name: "Alice",
+    marks: [90, 85, 95]
+}
+
+print(student.marks)
+
+print(student.marks[0])
+print(student.marks[1])
+print(student.marks[2])
+
+
+// ------------------------------------------------------------
+// Objects Can Store Objects
+// ------------------------------------------------------------
+
+user = {
+    name: "John",
+    address: {
+        city: "Mumbai",
+        country: "India"
+    }
+}
+
+print(user.address.city)
+print(user.address.country)
+
+
+// ------------------------------------------------------------
+// Nested Property Assignment
+// ------------------------------------------------------------
+
+user.address.city = "Pune"
+
+print(user.address.city)
+
+
+// ------------------------------------------------------------
+// Arrays Of Objects
+// ------------------------------------------------------------
+
+users = [
+    {
+        name: "Alice",
+        age: 20
+    },
+    {
+        name: "Bob",
+        age: 24
+    }
+]
+
+print(users[0].name)
+print(users[1].age)
+
+
+// ------------------------------------------------------------
+// has()
+// ------------------------------------------------------------
+
+person = {
+    name: "Aditya",
+    age: 21
+}
+
+print(person.has("name"))
+print(person.has("city"))
+
+
+// ------------------------------------------------------------
+// keys()
+// ------------------------------------------------------------
+
+print(person.keys())
+
+
+// ------------------------------------------------------------
+// values()
+// ------------------------------------------------------------
+
+print(person.values())
+
+
+// ------------------------------------------------------------
+// remove()
+// ------------------------------------------------------------
+
+person.remove("age")
+
+print(person)
+
+
+// ------------------------------------------------------------
+// clear()
+// ------------------------------------------------------------
+
+person.clear()
+
+print(person)
+
+
+// ------------------------------------------------------------
+// Building Objects Step By Step
+// ------------------------------------------------------------
+
+profile = {
+    username: "Cyberady",
+    followers: 1200,
+    verified: true
+}
+
+print(profile)
+
+profile.followers = 1500
+
+print(profile)
+
+
+// ------------------------------------------------------------
+// Real World Example
+// ------------------------------------------------------------
+
+employee = {
+    id: 101,
+    name: "Sophia",
+    department: "Engineering",
+    salary: 85000,
+    skills: [
+        "Rust",
+        "Python",
+        "SQL"
+    ]
+}
+
+print(employee.name)
+print(employee.department)
+print(employee.skills)
+
+print(employee.skills.first())
+print(employee.skills.last())
+
+
+// ------------------------------------------------------------
+// Objects And Interpolation
+// ------------------------------------------------------------
+
+book = {
+    title: "The Rust Programming Language",
+    pages: 560
+}
+
+print("{book.title}")
+print("{book.pages} pages")
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ Objects store related values.
+// ✓ Properties use names instead of indexes.
+// ✓ Access properties using dot notation.
+// ✓ Properties can be updated.
+// ✓ Objects can contain arrays.
+// ✓ Objects can contain other objects.
+// ✓ Nested properties are supported.
+// ✓ Objects provide useful built-in methods.
+//
+// Methods:
+//
+// has(key)
+// keys()
+// values()
+// remove(key)
+// clear()

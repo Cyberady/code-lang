@@ -1,0 +1,207 @@
+// While Loops
+//
+// A while loop repeatedly executes a block of code while its
+// condition evaluates to true.
+//
+// The condition is checked before each iteration.
+//
+// Syntax:
+//
+// while condition {
+//     ...
+// }
+
+
+
+// ------------------------------------------------------------
+// Basic While Loop
+// ------------------------------------------------------------
+
+count = 1
+
+while count <= 5 {
+    print(count)
+
+    count = count + 1
+}
+
+
+// ------------------------------------------------------------
+// Counting From 0
+// ------------------------------------------------------------
+
+number = 0
+
+while number < 5 {
+    print(number)
+
+    number = number + 1
+}
+
+
+// ------------------------------------------------------------
+// Counting Down
+// ------------------------------------------------------------
+
+count = 5
+
+while count > 0 {
+    print(count)
+
+    count = count - 1
+}
+
+
+// ------------------------------------------------------------
+// Using Variables In Conditions
+// ------------------------------------------------------------
+
+temperature = 25
+
+while temperature < 30 {
+    print(temperature)
+
+    temperature = temperature + 1
+}
+
+
+// ------------------------------------------------------------
+// Calculating A Sum
+// ------------------------------------------------------------
+
+number = 1
+sum = 0
+
+while number <= 5 {
+    sum = sum + number
+
+    number = number + 1
+}
+
+print(sum)
+
+
+// ------------------------------------------------------------
+// Updating Multiple Variables
+// ------------------------------------------------------------
+
+x = 1
+y = 10
+
+while x <= 5 {
+    print(x)
+    print(y)
+
+    x = x + 1
+    y = y + 10
+}
+
+
+// ------------------------------------------------------------
+// Using Arrays
+// ------------------------------------------------------------
+
+numbers = [10, 20, 30, 40]
+
+index = 0
+
+while index < numbers.length {
+    print(numbers[index])
+
+    index = index + 1
+}
+
+
+// ------------------------------------------------------------
+// Using Objects
+// ------------------------------------------------------------
+
+player = {
+    name: "Knight",
+    health: 100
+}
+
+while player.health > 0 {
+    print(player.health)
+
+    player.health = player.health - 25
+}
+
+
+// ------------------------------------------------------------
+// Nested While Loops
+// ------------------------------------------------------------
+
+row = 1
+
+while row <= 3 {
+
+    column = 1
+
+    while column <= 3 {
+        print("{row}, {column}")
+
+        column = column + 1
+    }
+
+    row = row + 1
+}
+
+
+// ------------------------------------------------------------
+// Multiplication Table
+// ------------------------------------------------------------
+
+number = 7
+count = 1
+
+while count <= 10 {
+    print("{number} x {count} = {number * count}")
+
+    count = count + 1
+}
+
+
+// ------------------------------------------------------------
+// Real World Example
+// ------------------------------------------------------------
+
+attempts = 1
+maximumAttempts = 3
+
+while attempts <= maximumAttempts {
+    print("Login attempt {attempts}")
+
+    attempts = attempts + 1
+}
+
+
+// ------------------------------------------------------------
+// Infinite Loops
+// ------------------------------------------------------------
+//
+// A while loop continues until its condition becomes false.
+//
+// Always make sure something inside the loop changes the
+// condition.
+//
+
+counter = 1
+
+while counter <= 3 {
+    print(counter)
+
+    counter = counter + 1
+}
+
+
+// ------------------------------------------------------------
+// Summary
+// ------------------------------------------------------------
+//
+// ✓ while repeats code while a condition is true.
+// ✓ The condition is checked before each iteration.
+// ✓ Update variables inside the loop.
+// ✓ while loops can work with arrays and objects.
+// ✓ while loops may be nested.
+// ✓ Ensure the condition eventually becomes false.
