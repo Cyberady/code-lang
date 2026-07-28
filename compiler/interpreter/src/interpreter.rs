@@ -524,13 +524,23 @@ impl<'a> Interpreter<'a> {
                 self.evaluate_property_call(object, property, arguments, *span),
 
             Expression::Identifier { name, span } => {
-                let function = self.environment
-                    .borrow()
-                    .get_function(name)
-                    .ok_or(InterpreterError::UndefinedVariable {
-                        name: name.clone(),
-                        span: *span,
-                    })?;
+                let function = match self.environment.borrow().get_function(name) {
+                    Some(function) => function,
+
+                    None => {
+                        if self.environment.borrow().contains(name) {
+                            return Err(InterpreterError::NotCallable {
+                                name: name.clone(),
+                                span: *span,
+                            });
+                        }
+
+                        return Err(InterpreterError::UndefinedVariable {
+                            name: name.clone(),
+                            span: *span,
+                        });
+                    }
+                };
 
                 if function.parameters.len() != arguments.len() {
                     return Err(InterpreterError::InvalidBinaryOperation {
@@ -934,6 +944,27 @@ impl<'a> Interpreter<'a> {
                     help: None,
 
                     example: None,
+
+                    span: *span,
+
+                    source: self._source,
+                },
+
+            InterpreterError::NotCallable { name, span } =>
+                Diagnostic {
+                    code: "E1005",
+
+                    title: "Value is Not Callable".to_string(),
+
+                    message: format!("'{}' is not a function and cannot be called.", name),
+
+                    note: Some(
+                        "Only functions and built-in functions can be called using '()'.".to_string()
+                    ),
+
+                    help: Some("Remove '()' or assign a function to this variable.".to_string()),
+
+                    example: Some("func hello() {}\nhello()".to_string()),
 
                     span: *span,
 

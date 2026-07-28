@@ -27,6 +27,11 @@ pub enum InterpreterError {
         span: Span,
     },
 
+    NotCallable {
+        name: String,
+        span: Span,
+    },
+
     Return(Value),
 
     Break,
@@ -49,15 +54,17 @@ impl fmt::Display for InterpreterError {
                 write!(f, "[E1003]: Invalid use of operator '{}'", operator)
             }
 
-            InterpreterError::RuntimeError { message, .. } => {
-                write!(f, "[E1004]: {message}")
-            }
+            InterpreterError::RuntimeError { message, .. } => { write!(f, "[E1004]: {message}") }
 
             InterpreterError::Return(_) => { write!(f, "Internal interpreter return") }
 
             InterpreterError::Break => { write!(f, "Internal interpreter break") }
 
             InterpreterError::Continue => { write!(f, "Internal interpreter continue") }
+
+            InterpreterError::NotCallable { name, .. } => {
+                write!(f, "[E1005]: Value '{}' is not callable", name)
+            }
         }
     }
 }
