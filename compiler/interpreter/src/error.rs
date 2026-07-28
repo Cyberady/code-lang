@@ -32,6 +32,12 @@ pub enum InterpreterError {
         span: Span,
     },
 
+    InvalidArgumentCount {
+        expected: usize,
+        found: usize,
+        span: Span,
+    },
+
     Return(Value),
 
     Break,
@@ -52,6 +58,15 @@ impl fmt::Display for InterpreterError {
 
             InterpreterError::InvalidBinaryOperation { operator, .. } => {
                 write!(f, "[E1003]: Invalid use of operator '{}'", operator)
+            }
+
+            InterpreterError::InvalidArgumentCount { expected, found, .. } => {
+                write!(
+                    f,
+                    "[E1006]: Function expected {} argument(s) but received {}.",
+                    expected,
+                    found
+                )
             }
 
             InterpreterError::RuntimeError { message, .. } => { write!(f, "[E1004]: {message}") }

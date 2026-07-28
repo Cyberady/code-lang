@@ -543,11 +543,13 @@ impl<'a> Interpreter<'a> {
                 };
 
                 if function.parameters.len() != arguments.len() {
-                    return Err(InterpreterError::InvalidBinaryOperation {
-                        operator: "?".to_string(),
+                    return Err(InterpreterError::InvalidArgumentCount {
+                        expected: function.parameters.len(),
+                        found: arguments.len(),
                         span: *span,
                     });
                 }
+                
                 let previous = self.environment.clone();
 
                 let function_environment = Rc::new(
@@ -965,6 +967,35 @@ impl<'a> Interpreter<'a> {
                     help: Some("Remove '()' or assign a function to this variable.".to_string()),
 
                     example: Some("func hello() {}\nhello()".to_string()),
+
+                    span: *span,
+
+                    source: self._source,
+                },
+
+            InterpreterError::InvalidArgumentCount { expected, found, span } =>
+                Diagnostic {
+                    code: "E1006",
+
+                    title: "Invalid Argument Count".to_string(),
+
+                    message: format!(
+                        "Function expected {} argument(s) but received {}.",
+                        expected,
+                        found
+                    ),
+
+                    note: Some(
+                        "Every function parameter must receive a corresponding argument.".to_string()
+                    ),
+
+                    help: Some(
+                        "Call the function with the correct number of arguments.".to_string()
+                    ),
+
+                    example: Some(
+                        "func add(a, b) {\n    return a + b\n}\n\nadd(10, 20)".to_string()
+                    ),
 
                     span: *span,
 
