@@ -190,23 +190,34 @@ impl<'a> Interpreter<'a> {
 
                     match value {
                         Value::Boolean(true) => {
+                            let previous = self.environment.clone();
+
+                            self.environment = Rc::new(
+                                RefCell::new(Environment::child(previous.clone()))
+                            );
+
                             for statement in body {
                                 match self.execute_statement(statement) {
                                     Ok(_) => {}
 
                                     Err(InterpreterError::Continue) => {
+                                        self.environment = previous;
                                         continue 'while_loop;
                                     }
 
                                     Err(InterpreterError::Break) => {
+                                        self.environment = previous;
                                         break 'while_loop;
                                     }
 
                                     Err(error) => {
+                                        self.environment = previous;
                                         return Err(error);
                                     }
                                 }
                             }
+
+                            self.environment = previous;
                         }
 
                         Value::Boolean(false) => {
@@ -231,6 +242,12 @@ impl<'a> Interpreter<'a> {
                 match iterable {
                     Value::Array(values) => {
                         'for_loop: for value in values {
+                            let previous = self.environment.clone();
+
+                            self.environment = Rc::new(
+                                RefCell::new(Environment::child(previous.clone()))
+                            );
+
                             self.environment.borrow_mut().assign(variable.clone(), value, *span)?;
 
                             for statement in body {
@@ -238,18 +255,23 @@ impl<'a> Interpreter<'a> {
                                     Ok(_) => {}
 
                                     Err(InterpreterError::Continue) => {
+                                        self.environment = previous;
                                         continue 'for_loop;
                                     }
 
                                     Err(InterpreterError::Break) => {
+                                        self.environment = previous;
                                         break 'for_loop;
                                     }
 
                                     Err(error) => {
+                                        self.environment = previous;
                                         return Err(error);
                                     }
                                 }
                             }
+
+                            self.environment = previous;
                         }
 
                         Ok(None)

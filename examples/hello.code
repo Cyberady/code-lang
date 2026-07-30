@@ -1,5 +1,5 @@
-func add(a, b) {
-    return a + b
+for x in [1, 2] {
+    const y = x
 }
 
-print(add(10, 20))
+print(y)

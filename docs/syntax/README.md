@@ -466,18 +466,6 @@ docs/
 
 ---
 
-# What's Next?
-
-After completing every chapter in this guide, continue with the error documentation.
-
-📄 [docs/errors/README.md](../errors/README.md)
-
-There you'll learn:
-
-- Every compiler error
-- Every runtime error
-- Why each error happens
-- How to fix it
-- Best practices to avoid common mistakes
+# More coming soon
 
 Happy coding! 🚀
