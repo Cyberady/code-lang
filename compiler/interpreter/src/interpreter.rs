@@ -54,7 +54,14 @@ impl<'a> Interpreter<'a> {
                 Ok(None)
             }
 
-            Statement::ConstantDeclaration { name, value, .. } => {
+            Statement::ConstantDeclaration { name, value, span } => {
+                if self.environment.borrow().contains_variable(name) {
+                    return Err(InterpreterError::DuplicateDeclaration {
+                        name: name.clone(),
+                        span: *span,
+                    });
+                }
+
                 let value = self.evaluate(value)?;
 
                 self.environment.borrow_mut().define(name.clone(), value, true);
@@ -63,6 +70,7 @@ impl<'a> Interpreter<'a> {
             }
 
             Statement::IndexAssignment { object, index, value, span } => {
+                let index_span = *index.span();
                 let object_name = match object {
                     Expression::Identifier { name, .. } => name.clone(),
 
@@ -90,12 +98,21 @@ impl<'a> Interpreter<'a> {
                 let value = self.evaluate(value)?;
 
                 let index = match index {
-                    Value::Number(n) => n as usize,
+                    Value::Number(n) => {
+                        if n < 0.0 {
+                            return Err(InterpreterError::RuntimeError {
+                                message: "Array index cannot be negative.".to_string(),
+                                span: index_span,
+                            });
+                        }
+
+                        n as usize
+                    }
 
                     _ => {
                         return Err(InterpreterError::RuntimeError {
                             message: "Array index must be a number.".to_string(),
-                            span: *span,
+                            span: index_span,
                         });
                     }
                 };
@@ -109,15 +126,15 @@ impl<'a> Interpreter<'a> {
 
                 array[index] = value;
 
-                self.environment.borrow_mut().assign(object_name, Value::Array(array))?;
+                self.environment.borrow_mut().assign(object_name, Value::Array(array), *span)?;
 
                 Ok(None)
             }
 
-            Statement::Assignment { name, value, span: _ } => {
+            Statement::Assignment { name, value, span } => {
                 let value = self.evaluate(value)?;
 
-                self.environment.borrow_mut().assign(name.clone(), value)?;
+                self.environment.borrow_mut().assign(name.clone(), value, *span)?;
 
                 Ok(None)
             }
@@ -214,7 +231,7 @@ impl<'a> Interpreter<'a> {
                 match iterable {
                     Value::Array(values) => {
                         'for_loop: for value in values {
-                            self.environment.borrow_mut().assign(variable.clone(), value)?;
+                            self.environment.borrow_mut().assign(variable.clone(), value, *span)?;
 
                             for statement in body {
                                 match self.execute_statement(statement) {
@@ -246,7 +263,14 @@ impl<'a> Interpreter<'a> {
                 }
             }
 
-            Statement::FunctionDeclaration { name, parameters, body, .. } => {
+            Statement::FunctionDeclaration { name, parameters, body, span } => {
+                if self.environment.borrow().contains_function(name) {
+                    return Err(InterpreterError::DuplicateDeclaration {
+                        name: name.clone(),
+                        span: *span,
+                    });
+                }
+
                 self.environment
                     .borrow_mut()
                     .define_function(name.clone(), crate::environment::Function {
@@ -419,11 +443,19 @@ impl<'a> Interpreter<'a> {
             }
 
             Expression::Index { object, index, span } => {
+                let index_span = *index.span();
                 let object = self.evaluate(object)?;
                 let index = self.evaluate(index)?;
 
                 match (object, index) {
                     (Value::Array(values), Value::Number(i)) => {
+                        if i < 0.0 {
+                            return Err(InterpreterError::RuntimeError {
+                                message: "Array index cannot be negative.".to_string(),
+                                span: index_span,
+                            });
+                        }
+
                         let i = i as usize;
 
                         values.get(i).cloned().ok_or(InterpreterError::RuntimeError {
@@ -431,11 +463,10 @@ impl<'a> Interpreter<'a> {
                             span: *span,
                         })
                     }
-
                     _ =>
                         Err(InterpreterError::RuntimeError {
                             message: "Invalid array index.".to_string(),
-                            span: *span,
+                            span: index_span,
                         }),
                 }
             }
@@ -549,7 +580,7 @@ impl<'a> Interpreter<'a> {
                         span: *span,
                     });
                 }
-                
+
                 let previous = self.environment.clone();
 
                 let function_environment = Rc::new(
@@ -623,10 +654,24 @@ impl<'a> Interpreter<'a> {
             }
 
             (Value::Number(a), BinaryOperator::Divide, Value::Number(b)) => {
+                if b == 0.0 {
+                    return Err(InterpreterError::RuntimeError {
+                        message: "Division by zero.".to_string(),
+                        span,
+                    });
+                }
+
                 Ok(Value::Number(a / b))
             }
 
             (Value::Number(a), BinaryOperator::Modulo, Value::Number(b)) => {
+                if b == 0.0 {
+                    return Err(InterpreterError::RuntimeError {
+                        message: "Modulo by zero.".to_string(),
+                        span,
+                    });
+                }
+
                 Ok(Value::Number(a % b))
             }
 
@@ -680,7 +725,7 @@ impl<'a> Interpreter<'a> {
 
         let updated = self.update_object_property(root_object, &path, value)?;
 
-        self.environment.borrow_mut().assign(root_name, updated)?;
+        self.environment.borrow_mut().assign(root_name, updated, Span::default())?;
 
         Ok(())
     }
@@ -996,6 +1041,27 @@ impl<'a> Interpreter<'a> {
                     example: Some(
                         "func add(a, b) {\n    return a + b\n}\n\nadd(10, 20)".to_string()
                     ),
+
+                    span: *span,
+
+                    source: self._source,
+                },
+
+            InterpreterError::DuplicateDeclaration { name, span } =>
+                Diagnostic {
+                    code: "E1007",
+
+                    title: "Duplicate Declaration".to_string(),
+
+                    message: format!("'{}' is already declared.", name),
+
+                    note: Some("Names must be unique within the same scope.".to_string()),
+
+                    help: Some(
+                        "Choose a different name or remove the previous declaration.".to_string()
+                    ),
+
+                    example: Some("const value = 10".to_string()),
 
                     span: *span,
 

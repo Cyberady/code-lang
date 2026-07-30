@@ -1,4 +1,4 @@
-use crate::{error::InterpreterError, interpreter::Interpreter, value::Value};
+use crate::{ error::InterpreterError, interpreter::Interpreter, value::Value };
 
 use parser::ast::Expression;
 
@@ -10,7 +10,7 @@ pub fn call(
     array: &mut Vec<Value>,
     property: &str,
     arguments: &[Expression],
-    span: Span,
+    span: Span
 ) -> Result<Value, InterpreterError> {
     match property {
         "add" => {
@@ -55,10 +55,9 @@ pub fn call(
                 }
             }
 
-            interpreter
-                .environment
+            interpreter.environment
                 .borrow_mut()
-                .assign(name.to_string(), Value::Array(array.clone()))?;
+                .assign(name.to_string(), Value::Array(array.clone()), Span::default())?;
 
             Ok(Value::Null)
         }
@@ -108,10 +107,9 @@ pub fn call(
                 }
             }
 
-            interpreter
-                .environment
+            interpreter.environment
                 .borrow_mut()
-                .assign(name.to_string(), Value::Array(array.clone()))?;
+                .assign(name.to_string(), Value::Array(array.clone()), Span::default())?;
 
             Ok(Value::Null)
         }
@@ -139,10 +137,9 @@ pub fn call(
 
             array.clear();
 
-            interpreter
-                .environment
+            interpreter.environment
                 .borrow_mut()
-                .assign(name.to_string(), Value::Array(array.clone()))?;
+                .assign(name.to_string(), Value::Array(array.clone()), Span::default())?;
 
             Ok(Value::Null)
         }
@@ -158,10 +155,11 @@ pub fn call(
             match array.first() {
                 Some(value) => Ok(value.clone()),
 
-                None => Err(InterpreterError::RuntimeError {
-                    message: "Array is empty.".to_string(),
-                    span,
-                }),
+                None =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "Array is empty.".to_string(),
+                        span,
+                    }),
             }
         }
 
@@ -176,10 +174,11 @@ pub fn call(
             match array.last() {
                 Some(value) => Ok(value.clone()),
 
-                None => Err(InterpreterError::RuntimeError {
-                    message: "Array is empty.".to_string(),
-                    span,
-                }),
+                None =>
+                    Err(InterpreterError::RuntimeError {
+                        message: "Array is empty.".to_string(),
+                        span,
+                    }),
             }
         }
 
@@ -204,10 +203,9 @@ pub fn call(
 
             array.reverse();
 
-            interpreter
-                .environment
+            interpreter.environment
                 .borrow_mut()
-                .assign(name.to_string(), Value::Array(array.clone()))?;
+                .assign(name.to_string(), Value::Array(array.clone()), Span::default())?;
 
             Ok(Value::Null)
         }
@@ -241,17 +239,17 @@ pub fn call(
                 a.partial_cmp(&b).unwrap()
             });
 
-            interpreter
-                .environment
+            interpreter.environment
                 .borrow_mut()
-                .assign(name.to_string(), Value::Array(array.clone()))?;
+                .assign(name.to_string(), Value::Array(array.clone()), Span::default())?;
 
             Ok(Value::Null)
         }
 
-        _ => Err(InterpreterError::RuntimeError {
-            message: format!("Unknown array method '{}'.", property),
-            span,
-        }),
+        _ =>
+            Err(InterpreterError::RuntimeError {
+                message: format!("Unknown array method '{}'.", property),
+                span,
+            }),
     }
 }

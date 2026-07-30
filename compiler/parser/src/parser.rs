@@ -231,7 +231,16 @@ impl Parser {
 
         if self.current().kind != TokenKind::RightParen {
             loop {
-                let parameter = self.consume(TokenKind::Identifier)?.lexeme.clone();
+                let token = self.consume(TokenKind::Identifier)?;
+
+                let parameter = token.lexeme.clone();
+
+                if parameters.contains(&parameter) {
+                    return Err(ParserError::DuplicateParameter {
+                        name: parameter,
+                        span: token.span,
+                    });
+                }
 
                 parameters.push(parameter);
 
@@ -239,7 +248,7 @@ impl Parser {
                     break;
                 }
 
-                self.advance();
+                self.advance(); // consume ','
             }
         }
 
@@ -361,10 +370,12 @@ impl Parser {
 
             let expression = self.parse_unary()?;
 
+            let span = token.span.merge(*expression.span());
+
             return Ok(Expression::Unary {
                 operator,
                 expression: Box::new(expression),
-                span: token.span,
+                span,
             });
         }
 
@@ -391,9 +402,9 @@ impl Parser {
                     }
                 }
 
-                self.consume(TokenKind::RightParen)?;
+                let right_paren = self.consume(TokenKind::RightParen)?.span;
 
-                let span = expression.span().clone();
+                let span = expression.span().merge(right_paren);
 
                 expression = Expression::Call {
                     callee: Box::new(expression),
@@ -405,9 +416,9 @@ impl Parser {
 
                 let index = self.parse_expression()?;
 
-                self.consume(TokenKind::RightBracket)?;
+                let right_bracket = self.consume(TokenKind::RightBracket)?.span;
 
-                let span = expression.span().clone();
+                let span = expression.span().merge(right_bracket);
 
                 expression = Expression::Index {
                     object: Box::new(expression),
@@ -417,9 +428,10 @@ impl Parser {
             } else if self.current().kind == TokenKind::Dot {
                 self.advance();
 
-                let property = self.consume_identifier()?;
+                let token = self.consume(TokenKind::Identifier)?;
+                let property = token.lexeme.clone();
 
-                let span = expression.span().clone();
+                let span = expression.span().merge(token.span);
 
                 expression = Expression::Property {
                     object: Box::new(expression),

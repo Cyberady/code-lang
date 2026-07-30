@@ -38,6 +38,11 @@ pub enum InterpreterError {
         span: Span,
     },
 
+    DuplicateDeclaration {
+        name: String,
+        span: Span,
+    },
+
     Return(Value),
 
     Break,
@@ -67,6 +72,10 @@ impl fmt::Display for InterpreterError {
                     expected,
                     found
                 )
+            }
+
+            InterpreterError::DuplicateDeclaration { name, .. } => {
+                write!(f, "[E1007]: Duplicate declaration '{}'", name)
             }
 
             InterpreterError::RuntimeError { message, .. } => { write!(f, "[E1004]: {message}") }

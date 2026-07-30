@@ -10,13 +10,18 @@ pub struct Span {
 }
 
 impl Span {
-    /// Creates a new span.
     pub fn new(start: usize, end: usize) -> Self {
         Self { start, end }
     }
 
-    /// Returns the span length.
     pub fn length(&self) -> usize {
         self.end - self.start
+    }
+
+    pub fn merge(self, other: Span) -> Span {
+        Span {
+            start: self.start.min(other.start),
+            end: self.end.max(other.end),
+        }
     }
 }

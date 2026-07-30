@@ -1,6 +1,6 @@
 //! Variable storage.
 
-use std::{cell::RefCell, collections::HashMap, rc::Rc};
+use std::{ cell::RefCell, collections::HashMap, rc::Rc };
 
 use crate::value::Value;
 
@@ -50,12 +50,13 @@ impl Environment {
         &mut self,
         name: String,
         value: Value,
+        span: Span
     ) -> Result<(), crate::error::InterpreterError> {
         if let Some(variable) = self.variables.get_mut(&name) {
             if variable.is_const {
                 return Err(crate::error::InterpreterError::CannotAssignConstant {
                     name,
-                    span: Span::default(),
+                    span,
                 });
             }
 
@@ -71,7 +72,7 @@ impl Environment {
         &mut self,
         name: &str,
         index: usize,
-        value: Value,
+        value: Value
     ) -> Result<(), crate::error::InterpreterError> {
         if let Some(variable) = self.variables.get_mut(name) {
             if variable.is_const {
@@ -136,6 +137,14 @@ impl Environment {
         }
 
         false
+    }
+
+    pub fn contains_variable(&self, name: &str) -> bool {
+        self.variables.contains_key(name)
+    }
+
+    pub fn contains_function(&self, name: &str) -> bool {
+        self.functions.contains_key(name)
     }
 
     pub fn define_function(&mut self, name: String, function: Function) {

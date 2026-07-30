@@ -1,4 +1,5 @@
 //! Parser errors.
+use lexer::span::Span;
 
 #[derive(Debug)]
 pub enum ParserError {
@@ -10,6 +11,11 @@ pub enum ParserError {
     ContinueOutsideLoop,
 
     ReturnOutsideFunction,
+
+    DuplicateParameter {
+        name: String,
+        span: Span,
+    },
 }
 
 impl std::fmt::Display for ParserError {
@@ -29,6 +35,10 @@ impl std::fmt::Display for ParserError {
 
             ParserError::ReturnOutsideFunction => {
                 write!(f, "[E3005]: 'return' can only be used inside a function.")
+            }
+            
+            ParserError::DuplicateParameter { name, .. } => {
+                write!(f, "[E3006]: Duplicate parameter '{}'.", name)
             }
         }
     }
