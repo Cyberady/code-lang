@@ -1,5 +1,6 @@
-for x in [1, 2] {
-    const y = x
+user = {
+    name : "Aditya",
+    age : 21
 }
 
-print(y)
+print(user.name)

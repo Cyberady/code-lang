@@ -520,6 +520,10 @@ impl<'a> Interpreter<'a> {
                         Ok(Value::Number(text.chars().count() as f64))
                     }
 
+                    Value::Object(properties) if property == "length" => {
+                        Ok(Value::Number(properties.len() as f64))
+                    }
+
                     Value::Object(properties) =>
                         match properties.get(property) {
                             Some(value) => Ok(value.clone()),
