@@ -1,6 +1,1 @@
-user = {
-    name : "Aditya",
-    age : 21
-}
-
-print(user.name)
+name = input("A", "B")

@@ -4,19 +4,21 @@ pub mod print;
 pub mod random;
 pub mod range;
 pub mod time;
+pub mod input;
 
 use parser::ast::Expression;
 
-use crate::{error::InterpreterError, interpreter::Interpreter, value::Value};
+use crate::{ error::InterpreterError, interpreter::Interpreter, value::Value };
 
 pub fn call(
     interpreter: &mut Interpreter,
     name: &str,
-    arguments: &[Expression],
+    arguments: &[Expression]
 ) -> Result<Value, InterpreterError> {
     match name {
         "print" => print::call(interpreter, arguments),
         "range" => range::call(interpreter, arguments),
+        "input" => input::call(interpreter, arguments),
 
         _ => unreachable!(),
     }

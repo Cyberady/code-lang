@@ -573,10 +573,11 @@ impl<'a> Interpreter<'a> {
         arguments: &[Expression]
     ) -> Result<Value, InterpreterError> {
         match callee {
-            Expression::Identifier { name, .. } if matches!(name.as_str(), "print" | "range") => {
+            Expression::Identifier { name, .. } if
+                matches!(name.as_str(), "print" | "range" | "input")
+            => {
                 builtins::call(self, name, arguments)
             }
-
             Expression::Property { object, property, span } =>
                 self.evaluate_property_call(object, property, arguments, *span),
 
