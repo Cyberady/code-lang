@@ -576,7 +576,7 @@ impl<'a> Interpreter<'a> {
             Expression::Identifier { name, .. } if
                 matches!(
                     name.as_str(),
-                    "print" | "range" | "input" | "number" | "string" | "boolean"
+                    "print" | "range" | "input" | "number" | "string" | "boolean" | "type"
                 )
             => {
                 builtins::call(self, name, arguments)

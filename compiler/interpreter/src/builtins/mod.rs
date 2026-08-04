@@ -8,6 +8,7 @@ pub mod input;
 pub mod number;
 pub mod string;
 pub mod boolean;
+pub mod r#type;
 
 use parser::ast::Expression;
 
@@ -25,6 +26,7 @@ pub fn call(
         "number" => number::call(interpreter, arguments),
         "string" => string::call(interpreter, arguments),
         "boolean" => boolean::call(interpreter, arguments),
+        "type" => r#type::call(interpreter, arguments),
 
         _ => unreachable!(),
     }
