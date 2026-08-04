@@ -1,1 +1,1 @@
-print(number(true))
+print(string())

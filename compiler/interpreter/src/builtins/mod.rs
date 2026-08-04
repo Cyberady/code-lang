@@ -6,6 +6,7 @@ pub mod range;
 pub mod time;
 pub mod input;
 pub mod number;
+pub mod string;
 
 use parser::ast::Expression;
 
@@ -21,6 +22,7 @@ pub fn call(
         "range" => range::call(interpreter, arguments),
         "input" => input::call(interpreter, arguments),
         "number" => number::call(interpreter, arguments),
+        "string" => string::call(interpreter, arguments),
 
         _ => unreachable!(),
     }
