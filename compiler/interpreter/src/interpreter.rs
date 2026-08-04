@@ -574,7 +574,7 @@ impl<'a> Interpreter<'a> {
     ) -> Result<Value, InterpreterError> {
         match callee {
             Expression::Identifier { name, .. } if
-                matches!(name.as_str(), "print" | "range" | "input")
+                matches!(name.as_str(), "print" | "range" | "input" | "number")
             => {
                 builtins::call(self, name, arguments)
             }

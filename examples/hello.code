@@ -1,1 +1,1 @@
-name = input("A", "B")
+print(number(true))

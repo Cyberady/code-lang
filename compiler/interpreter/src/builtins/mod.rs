@@ -5,6 +5,7 @@ pub mod random;
 pub mod range;
 pub mod time;
 pub mod input;
+pub mod number;
 
 use parser::ast::Expression;
 
@@ -19,6 +20,7 @@ pub fn call(
         "print" => print::call(interpreter, arguments),
         "range" => range::call(interpreter, arguments),
         "input" => input::call(interpreter, arguments),
+        "number" => number::call(interpreter, arguments),
 
         _ => unreachable!(),
     }
