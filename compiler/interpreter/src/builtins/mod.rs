@@ -7,6 +7,7 @@ pub mod time;
 pub mod input;
 pub mod number;
 pub mod string;
+pub mod boolean;
 
 use parser::ast::Expression;
 
@@ -23,6 +24,7 @@ pub fn call(
         "input" => input::call(interpreter, arguments),
         "number" => number::call(interpreter, arguments),
         "string" => string::call(interpreter, arguments),
+        "boolean" => boolean::call(interpreter, arguments),
 
         _ => unreachable!(),
     }
